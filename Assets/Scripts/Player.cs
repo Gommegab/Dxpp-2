@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    // Públicas en Dev para ajustar al tiempo
     public float speed, jumpForce;
 
     float horizontal;
@@ -15,6 +16,7 @@ public class Player : MonoBehaviour
 
     void Start()
     {
+        // Inicialización (Futura función según fases)
         speed = 2.5f;
         jumpForce = 8f;
 
@@ -37,8 +39,6 @@ public class Player : MonoBehaviour
 
         // Se activa la animación de caer a velocidad Y hacia abajo
         animator.SetBool( "falling", rb.velocity.y < 0 );
-
-        print($"Player velocity {rb.velocity}" );
 
         if( IsGrounded() )
         {
@@ -65,8 +65,11 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
-        // Movimiento con las teclas GetAxisRaw("Horizontal");
-        rb.velocity = new Vector2( horizontal * speed, rb.velocity.y);
+        if( IsGrounded() )
+        {
+            // Movimiento con las teclas GetAxisRaw("Horizontal");
+            rb.velocity = new Vector2( horizontal * speed, rb.velocity.y);
+        }
     }
 
 
@@ -91,7 +94,7 @@ public class Player : MonoBehaviour
 
         bool grounded = rc ? true : false;
 
-        // print("Player.IsGrounded() " + grounded );
+        // print($"Player.IsGrounded() = {grounded}" );
 
         return grounded;
     }
