@@ -29,26 +29,44 @@ public class Player : MonoBehaviour
         tmpPosition += velocity * Time.deltaTime;
         transform.position = tmpPosition;
 
+        // Values -1.0f, 0f, 1.0f
+        horizontal = Input.GetAxisRaw("Horizontal");
+
+        // Se activa la animación de correr cuando Player no esté parado
         animator.SetBool( "running", horizontal != 0.0f );
 
-        horizontal = Input.GetAxisRaw("Horizontal") * speed;
+        // Se activa la animación de caer a velocidad Y hacia abajo
+        animator.SetBool( "falling", rb.velocity.y < 0 );
 
-        if ( horizontal < 0.0f ) {
-            transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
-        }
-        else if ( horizontal > 0.0f ) {
-            transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-        }
+        print($"Player velocity {rb.velocity}" );
 
-        if( Input.GetKeyDown(KeyCode.W) && IsGrounded() )
+        if( IsGrounded() )
         {
-            Jump();
+            // Player mira en la misma dirección que su mvto.
+            if ( horizontal < 0.0f ) {
+                transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
+            }
+            else if ( horizontal > 0.0f ) {
+                transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+            }
+
+            if( Input.GetKeyDown(KeyCode.W) )
+            {
+                Jump();
+            }
+
+            // Si no se pulsa la tecla de salto, se anula la animación
+            else if ( animator.GetBool("jumping") )
+            {
+                animator.SetBool( "jumping", false );
+            }
         }
     }
 
     void FixedUpdate()
     {
-        rb.velocity = new Vector2( horizontal, rb.velocity.y);
+        // Movimiento con las teclas GetAxisRaw("Horizontal");
+        rb.velocity = new Vector2( horizontal * speed, rb.velocity.y);
     }
 
 
