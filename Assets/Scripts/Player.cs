@@ -27,9 +27,9 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        Vector2 tmpPosition = transform.position;
-        tmpPosition += velocity * Time.deltaTime;
-        transform.position = tmpPosition;
+        // Vector2 tmpPosition = transform.position;
+        // tmpPosition += velocity * Time.deltaTime;
+        // transform.position = tmpPosition;
 
         // Values -1.0f, 0f, 1.0f
         horizontal = Input.GetAxisRaw("Horizontal");
