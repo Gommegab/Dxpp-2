@@ -82,15 +82,14 @@ public class Player : MonoBehaviour
     bool IsGrounded()
     {
         // Physics.Raycast
-
         Vector3 origin = transform.position;
-        origin.y -= 0.64f;
+        origin.y -= 0.14f;
         Vector3 direction = Vector3.down;
         float maxDistance = 0.1f;
         // LayerMask mask;
 
         RaycastHit2D rc = Physics2D.Raycast(origin, direction, maxDistance );
-        Debug.DrawRay(origin, direction * 0.1f, Color.red );
+        Debug.DrawRay(origin, direction * maxDistance, Color.red );
 
         bool grounded = rc ? true : false;
 
