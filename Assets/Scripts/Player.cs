@@ -30,6 +30,7 @@ public class Player : MonoBehaviour
         // Vector2 tmpPosition = transform.position;
         // tmpPosition += velocity * Time.deltaTime;
         // transform.position = tmpPosition;
+        bool isGrounded = IsGrounded();
 
         // Values -1.0f, 0f, 1.0f
         horizontal = Input.GetAxisRaw("Horizontal");
@@ -38,9 +39,9 @@ public class Player : MonoBehaviour
         animator.SetBool( "running", horizontal != 0.0f );
 
         // Se activa la animación de caer a velocidad Y hacia abajo
-        animator.SetBool( "falling", rb.velocity.y < 0 );
+        animator.SetBool( "falling", rb.velocity.y < 0 && !isGrounded );
 
-        if( IsGrounded() )
+        if (isGrounded)
         {
             // Player mira en la misma dirección que su mvto.
             if ( horizontal < 0.0f ) {
@@ -86,12 +87,12 @@ public class Player : MonoBehaviour
         origin.y -= 0.65f;
         Vector3 direction = Vector3.down;
         float maxDistance = 0.1f;
-        // LayerMask mask;
-
-        RaycastHit2D rc = Physics2D.Raycast(origin, direction, maxDistance );
+        
+        LayerMask mask = LayerMask.GetMask("Ground");
+        RaycastHit2D rc = Physics2D.Raycast(origin, direction, maxDistance, mask);
         Debug.DrawRay(origin, direction * maxDistance, Color.red );
 
-        bool grounded = rc ? true : false;
+        bool grounded = rc.collider != null;
 
         // print($"Player.IsGrounded() = {grounded}" );
 
