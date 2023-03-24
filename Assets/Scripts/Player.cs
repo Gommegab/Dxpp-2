@@ -83,7 +83,7 @@ public class Player : MonoBehaviour
     {
         // Physics.Raycast
         Vector3 origin = transform.position;
-        origin.y -= 0.14f;
+        origin.y -= 0.65f;
         Vector3 direction = Vector3.down;
         float maxDistance = 0.1f;
         // LayerMask mask;
