@@ -6,9 +6,13 @@ public class CamFollow : MonoBehaviour
 {
     public GameObject player;
 
+    [SerializeField] private float endXposition = 13f;
+    private float initialXposition;
+
     void Start()
     {
         if ( player == null ) { PrintInitErrorVar("player"); }
+        initialXposition = transform.position.x;
 
     }
 
@@ -18,7 +22,9 @@ public class CamFollow : MonoBehaviour
         {
             Vector3 position = transform.position;
             position.x = player.transform.position.x;
-            transform.position = position;
+            if (position.x > initialXposition && position.x < endXposition) {
+                transform.position = position;
+            }
         }
     }
 
