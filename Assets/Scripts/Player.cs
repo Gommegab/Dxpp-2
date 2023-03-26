@@ -22,45 +22,58 @@ public class Player : MonoBehaviour
 
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+
+        animator.SetBool( "dying", false );
     }
 
 
     void Update()
     {
-        // Vector2 tmpPosition = transform.position;
-        // tmpPosition += velocity * Time.deltaTime;
-        // transform.position = tmpPosition;
-        bool isGrounded = IsGrounded();
-
-        // Values -1.0f, 0f, 1.0f
-        horizontal = Input.GetAxisRaw("Horizontal");
-
-        // Se activa la animación de correr cuando Player no esté parado
-        animator.SetBool( "running", horizontal != 0.0f );
-
-        // Se activa la animación de caer a velocidad Y hacia abajo
-        animator.SetBool( "falling", rb.velocity.y < 0 && !isGrounded );
-
-        if (isGrounded)
+        if ( ! GameManager.instance.GameOver )
         {
-            // Player mira en la misma dirección que su mvto.
-            if ( horizontal < 0.0f ) {
-                transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
-            }
-            else if ( horizontal > 0.0f ) {
-                transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+            bool isGrounded = IsGrounded();
+
+            // Values -1.0f, 0f, 1.0f
+            horizontal = Input.GetAxisRaw("Horizontal");
+
+            // Se activa la animación de correr cuando Player no esté parado
+            animator.SetBool( "running", horizontal != 0.0f );
+
+            // Se activa la animación de caer a velocidad Y hacia abajo
+            animator.SetBool( "falling", rb.velocity.y < 0 && !isGrounded );
+
+            if ( transform.position.y < GameManager.instance.PositionDeadByFall )
+            {
+                Debug.Log( "Player: Vacuum fall!" );
+                GameManager.instance.SetGameOver();
             }
 
-            if( Input.GetKeyDown(KeyCode.W) )
+            if (isGrounded)
             {
-                Jump();
-            }
+                // Player mira en la misma dirección que su mvto.
+                if ( horizontal < 0.0f ) {
+                    transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
+                }
+                else if ( horizontal > 0.0f ) {
+                    transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                }
 
-            // Si no se pulsa la tecla de salto, se anula la animación
-            else if ( animator.GetBool("jumping") )
-            {
-                animator.SetBool( "jumping", false );
+                if( Input.GetKeyDown(KeyCode.W) )
+                {
+                    Jump();
+                }
+
+                // Si no se pulsa la tecla de salto, se anula la animación
+                else if ( animator.GetBool("jumping") )
+                {
+                    animator.SetBool( "jumping", false );
+                }
             }
+        }
+
+        else {
+            speed = 0;
+            animator.SetBool( "dying", true );
         }
     }
 
@@ -72,7 +85,6 @@ public class Player : MonoBehaviour
             rb.velocity = new Vector2( horizontal * speed, rb.velocity.y);
         }
     }
-
 
     void Jump()
     {
@@ -87,7 +99,7 @@ public class Player : MonoBehaviour
         origin.y -= 0.65f;
         Vector3 direction = Vector3.down;
         float maxDistance = 0.1f;
-        
+
         LayerMask mask = LayerMask.GetMask("Ground");
         RaycastHit2D rc = Physics2D.Raycast(origin, direction, maxDistance, mask);
         Debug.DrawRay(origin, direction * maxDistance, Color.red );
