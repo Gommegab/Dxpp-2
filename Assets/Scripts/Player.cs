@@ -40,6 +40,12 @@ public class Player : MonoBehaviour
             // Se activa la animación de caer a velocidad Y hacia abajo
             animator.SetBool( "falling", rb.velocity.y < 0 && !isGrounded );
 
+            if ( transform.position.y < GameManager.instance.PositionDeadByFall )
+            {
+                Debug.Log( "Player. Vacuum fall!" );
+                GameManager.instance.SetGameOver();
+            }
+
             if (isGrounded)
             {
                 // Player mira en la misma dirección que su mvto.

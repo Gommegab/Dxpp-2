@@ -8,9 +8,11 @@ public class GameManager : MonoBehaviour
     public float gameDuration;
 
     float timeRemaining;
+    float positionDeadByFall;
     bool gameOver, stageOver;
 
     public bool GameOver { get { return gameOver; } }
+    public float PositionDeadByFall {get {return positionDeadByFall; } }
 
     void Awake() {
         instance = this;
@@ -20,8 +22,8 @@ public class GameManager : MonoBehaviour
     {
         gameOver = false;
         stageOver = false;
-
         gameDuration = 15f;
+        positionDeadByFall = -4f;
         // Inicializar o cronómetro ca duración máxima do xogo
         timeRemaining = gameDuration;
     }
@@ -55,6 +57,11 @@ public class GameManager : MonoBehaviour
         return string.Format("{0:00}:{1:00}", minutes, remainingSeconds);
     }
 
+    void GameEnd()
+    {
+        Debug.Log("GAME OVER");
+        gameOver = true;
+    }
 
     public void StageEnd()
     {
@@ -62,13 +69,10 @@ public class GameManager : MonoBehaviour
         stageOver = true;
     }
 
-    void GameEnd()
+    public void SetGameOver()
     {
-        Debug.Log("GAME OVER");
-        gameOver = true;
+        GameEnd();
     }
-
-
 
     // void OnGUI()
     // {
