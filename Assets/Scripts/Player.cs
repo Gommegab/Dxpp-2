@@ -22,6 +22,8 @@ public class Player : MonoBehaviour
 
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+
+        animator.SetBool( "dying", false );
     }
 
 
@@ -42,7 +44,7 @@ public class Player : MonoBehaviour
 
             if ( transform.position.y < GameManager.instance.PositionDeadByFall )
             {
-                Debug.Log( "Player. Vacuum fall!" );
+                Debug.Log( "Player: Vacuum fall!" );
                 GameManager.instance.SetGameOver();
             }
 
@@ -68,6 +70,10 @@ public class Player : MonoBehaviour
                 }
             }
         }
+
+        else {
+            animator.SetBool( "dying", true );
+        }
     }
 
     void FixedUpdate()
@@ -78,7 +84,6 @@ public class Player : MonoBehaviour
             rb.velocity = new Vector2( horizontal * speed, rb.velocity.y);
         }
     }
-
 
     void Jump()
     {

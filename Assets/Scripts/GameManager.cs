@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour
     {
         gameOver = false;
         stageOver = false;
-        gameDuration = 15f;
+        // gameDuration = 15f;
         positionDeadByFall = -4f;
         // Inicializar o cronómetro ca duración máxima do xogo
         timeRemaining = gameDuration;
@@ -32,7 +32,7 @@ public class GameManager : MonoBehaviour
     {
         if( ! stageOver )
         {
-            // Restar o tempo transcurrido dende o último frame ao tempo restante
+            // Resta o tempo transcurrido dende o último frame ao tempo restante
             timeRemaining -= Time.deltaTime;
 
             if ( timeRemaining <= 0f )
@@ -59,7 +59,7 @@ public class GameManager : MonoBehaviour
 
     void GameEnd()
     {
-        Debug.Log("GAME OVER");
+        // Debug.Log("GAME OVER");
         gameOver = true;
     }
 
@@ -73,13 +73,4 @@ public class GameManager : MonoBehaviour
     {
         GameEnd();
     }
-
-    // void OnGUI()
-    // {
-    //     GUIStyle style = GUI.skin.GetStyle ("label");
-    //     style.fontSize = 50;
-    //
-    //     // GUI.color = Color.white;
-    //     GUI.Label( new Rect(10, 10, 10, 20), "Chrono: " + timeRemaining );
-    // }
 }
