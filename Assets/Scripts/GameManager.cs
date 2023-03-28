@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class GameManager : MonoBehaviour
@@ -10,6 +11,7 @@ public class GameManager : MonoBehaviour
     
     [SerializeField] private TextMeshProUGUI timeCounter;
     [SerializeField] private float blinkingStartSeconds = 5f;
+    [SerializeField] private List<Image> heartImages;
 
     float timeRemaining;
     float positionDeadByFall;
@@ -77,6 +79,7 @@ public class GameManager : MonoBehaviour
         // Debug.Log("GAME OVER");
         gameOver = true;
         timeCounter.text = "";
+        heartImages.ForEach(h => h.color = Color.black);
     }
 
     public void StageEnd()
