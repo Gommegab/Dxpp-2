@@ -28,6 +28,9 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+
+        Pause();    // Inicializamos o xogo en pausa para arrancalo dende o menú
+
         gameOver = false;
         stageOver = false;
         // gameDuration = 15f;
@@ -36,7 +39,6 @@ public class GameManager : MonoBehaviour
         timeRemaining = gameDuration;
         notBlinkingColor = timeCounter.color;
 
-        Debug.Log(Screen.width);
         timeCounter.text = ConvertSecondsToMinutesAndSeconds(gameDuration);
     }
 
@@ -98,5 +100,13 @@ public class GameManager : MonoBehaviour
             timeCounter.color = Color.Lerp(notBlinkingColor, Color.red, Mathf.PingPong(Time.time, 1f));
             yield return new WaitForSeconds(0.5f);
         }
+    }
+
+    public void Pause() {
+        Time.timeScale = 0f;
+    }
+
+    public void Continue() {
+        Time.timeScale = 1f;
     }
 }
