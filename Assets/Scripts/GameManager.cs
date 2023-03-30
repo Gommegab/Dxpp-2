@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -12,6 +13,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI timeCounter;
     [SerializeField] private float blinkingStartSeconds = 5f;
     [SerializeField] private List<Image> heartImages;
+    [SerializeField] private GameObject menuCanvas;
+    [SerializeField] private GameObject buttonPlay;
+    [SerializeField] private GameObject buttonContinue;
+    [SerializeField] private GameObject buttonRestart;
 
     float timeRemaining;
     float positionDeadByFall;
@@ -21,29 +26,31 @@ public class GameManager : MonoBehaviour
     public float PositionDeadByFall {get {return positionDeadByFall; } }
 
     private Color notBlinkingColor;
+    
+    private GameObject player;
+    private Vector3 initialPlayerPosition;
+    private Vector3 initialPlayerScale;
+    private Vector3 initialCameraPosition;
 
     void Awake() {
         instance = this;
     }
 
-    void Start()
-    {
-        gameOver = false;
-        stageOver = false;
-        // gameDuration = 15f;
-        positionDeadByFall = -4f;
-        // Inicializar o cronómetro ca duración máxima do xogo
-        timeRemaining = gameDuration;
+    void Start() {
+
+        player = GameObject.Find("Player");
+        initialPlayerPosition = player.transform.position;
+        initialPlayerScale = player.transform.localScale;
+        initialCameraPosition = Camera.main.gameObject.transform.position;
         notBlinkingColor = timeCounter.color;
 
-        Debug.Log(Screen.width);
-        timeCounter.text = ConvertSecondsToMinutesAndSeconds(gameDuration);
+        Pause();    // Inicializamos o xogo en pausa para arrancalo dende o menú
+        InitializeLevel();
     }
 
-    void Update()
-    {
-        if( ! stageOver && ! gameOver )
-        {
+    void Update() {
+
+        if( ! stageOver && ! gameOver ) {
             // Resta o tempo transcurrido dende o último frame ao tempo restante
             timeRemaining -= Time.deltaTime;
 
@@ -63,6 +70,16 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+
+        if (Input.GetKeyDown(KeyCode.Escape)) {
+            Pause();
+            menuCanvas.SetActive(true);
+            if (buttonPlay.activeSelf) {
+                buttonPlay.SetActive(false);
+                buttonRestart.SetActive(true);
+                buttonContinue.SetActive(true);
+            }
+        }
     }
 
     string ConvertSecondsToMinutesAndSeconds(float seconds)
@@ -80,6 +97,8 @@ public class GameManager : MonoBehaviour
         gameOver = true;
         timeCounter.text = "";
         heartImages.ForEach(h => h.color = Color.black);
+        
+        StartCoroutine(GameOverRestartCoroutine());
     }
 
     public void StageEnd()
@@ -93,10 +112,43 @@ public class GameManager : MonoBehaviour
         GameEnd();
     }
 
+    public void Pause() {
+        Time.timeScale = 0f;
+    }
+
+    public void StartGame() {
+        Time.timeScale = 1f;
+    }
+
+    public void Restart() {
+        InitializeLevel();
+        player.transform.position = initialPlayerPosition;
+        player.transform.localScale = initialPlayerScale;
+        Camera.main.gameObject.transform.position = initialCameraPosition;
+        menuCanvas.SetActive(false);
+        Time.timeScale = 1f;
+        timeCounter.color = notBlinkingColor;
+    }
+
+    private void InitializeLevel() {
+        gameOver = false;
+        stageOver = false;
+        // gameDuration = 15f;
+        positionDeadByFall = -4f;
+        // Inicializar o cronómetro ca duración máxima do xogo
+        timeRemaining = gameDuration;
+        timeCounter.text = ConvertSecondsToMinutesAndSeconds(gameDuration);
+    }
+
     private IEnumerator BlinkingTime() {     
-        while (timeRemaining > 0f) {
+        while (timeRemaining > 0f && timeRemaining <= blinkingStartSeconds) {
             timeCounter.color = Color.Lerp(notBlinkingColor, Color.red, Mathf.PingPong(Time.time, 1f));
             yield return new WaitForSeconds(0.5f);
         }
+    }
+    
+    private IEnumerator GameOverRestartCoroutine() {
+        yield return new WaitForSeconds(2);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
