@@ -32,8 +32,6 @@ public class GameManager : MonoBehaviour
     private Vector3 initialPlayerScale;
     private Vector3 initialCameraPosition;
 
-    private bool gameStarted = false;
-
     void Awake() {
         instance = this;
     }
@@ -49,8 +47,8 @@ public class GameManager : MonoBehaviour
         InitializeLevel();
     }
 
-    void Update()
-    {
+    void Update() {
+
         if( ! stageOver && ! gameOver ) {
             // Resta o tempo transcurrido dende o último frame ao tempo restante
             timeRemaining -= Time.deltaTime;
@@ -75,11 +73,10 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape)) {
             Pause();
             menuCanvas.SetActive(true);
-            if (!gameStarted) {
+            if (buttonPlay.activeSelf) {
                 buttonPlay.SetActive(false);
                 buttonRestart.SetActive(true);
                 buttonContinue.SetActive(true);
-                gameStarted = true;
             }
         }
     }
@@ -99,6 +96,7 @@ public class GameManager : MonoBehaviour
         gameOver = true;
         timeCounter.text = "";
         heartImages.ForEach(h => h.color = Color.black);
+        // TODO: Lanzar menú de novo
     }
 
     public void StageEnd()
@@ -113,7 +111,7 @@ public class GameManager : MonoBehaviour
     }
 
     private IEnumerator BlinkingTime() {     
-        while (timeRemaining > 0f && gameStarted) {
+        while (timeRemaining > 0f && timeRemaining <= blinkingStartSeconds) {
             timeCounter.color = Color.Lerp(notBlinkingColor, Color.red, Mathf.PingPong(Time.time, 1f));
             yield return new WaitForSeconds(0.5f);
         }
@@ -132,10 +130,9 @@ public class GameManager : MonoBehaviour
         player.transform.position = initialPlayerPosition;
         player.transform.localScale = initialPlayerScale;
         Camera.main.gameObject.transform.position = initialCameraPosition;
-        timeCounter.color = notBlinkingColor;
-        gameStarted = false;
         menuCanvas.SetActive(false);
         Time.timeScale = 1f;
+        timeCounter.color = notBlinkingColor;
     }
 
     private void InitializeLevel() {

@@ -1,6 +1,9 @@
 using UnityEngine;
 
 public class Menu : MonoBehaviour {
+
+    [SerializeField] private GameObject creditsPanel;
+
     public void Play() {
         gameObject.SetActive(false);
         GameManager.instance.StartGame();
@@ -14,5 +17,13 @@ public class Menu : MonoBehaviour {
 
     public void Restart() {
         GameManager.instance.Restart();
+    }
+
+    public void Credits() {
+        creditsPanel.SetActive(true);
+    }
+
+    public void CloseCredits() {
+        creditsPanel.SetActive(false);
     }
 }
