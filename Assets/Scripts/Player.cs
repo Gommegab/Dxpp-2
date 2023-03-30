@@ -58,7 +58,7 @@ public class Player : MonoBehaviour
                     transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
                 }
 
-                if( Input.GetKeyDown(KeyCode.W) )
+                if( Input.GetButtonDown("Jump") )
                 {
                     Jump();
                 }
