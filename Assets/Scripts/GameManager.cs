@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     public float gameDuration;
-    public List<Transform> spawnPlayerPoints;
+    public List<Transform> continuePlayerPoints;
 
     [SerializeField] private TextMeshProUGUI timeCounter;
     [SerializeField] private float blinkingStartSeconds = 5f;
@@ -41,7 +41,6 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         heartCount = heartImages.Count;
-        print($"GameManager. Vidas {heartCount}");
 
         player = GameObject.Find("Player");
         initialPlayerPosition = player.transform.position;
@@ -145,40 +144,44 @@ public class GameManager : MonoBehaviour
         // Colócase o Player no último punto de espanea antes do foso
         else {
             // Accions cando o Player cae nun foso
-            print($"GameManager: flopPosition = {flopPosition}");
+            RemoveHearts();
+            RepositionPlayer( flopPosition );
+        }
+    }
 
-            heartImages.RemoveAt(0);
-            heartCount = heartImages.Count;
+    void RepositionPlayer(Vector3 flopPosition )
+    {
+        Vector3 iPosition;
 
-            Vector3 iPosition;
+        // Posición de inicio do Player
+        Vector3 continuePoint = continuePlayerPoints[0].position;
 
-            // Posición de inicio do Player
-            Vector3 spawnPoint = spawnPlayerPoints[0].position;
+        for( int i = 0; i < continuePlayerPoints.Count; i++ )
+        {
+            iPosition = continuePlayerPoints[i].position;
 
-
-            for( int i = 0; i < spawnPlayerPoints.Count; i++ )
+            if( flopPosition.x > iPosition.x )
             {
-                iPosition = spawnPlayerPoints[i].position;
-                print($"GameManager: position {i} {iPosition.x}");
-
-                if( flopPosition.x > iPosition.x )
-                {
-                    spawnPoint = spawnPlayerPoints[i].position;
-                }
-
-                // O punto de caída nunca será menor que o de inicio
-                else {
-                    print($"GameManager: position else {i} {iPosition.x}");
-                    spawnPoint = spawnPlayerPoints[i-1].position;
-                }
+                continuePoint = continuePlayerPoints[i].position;
             }
 
-            print($"GameManager: spawnPoint = {spawnPoint.x}");
-
-            player.transform.position = spawnPoint;
-            Camera.main.gameObject.transform.position = initialCameraPosition;
+            // O punto de caída nunca será menor que o de inicio
+            else {
+                continuePoint = continuePlayerPoints[i-1].position;
+            }
         }
 
+        player.transform.position = continuePoint;
+        Camera.main.gameObject.transform.position = initialCameraPosition;
+    }
+
+    void RemoveHearts()
+    {
+        heartImages.RemoveAt(heartImages.Count - 1);
+        heartCount = heartImages.Count;
+
+        Image lastHeart = heartImages[heartImages.Count - 1];
+        lastHeart.color = Color.black;
         Debug.Log($"GameManager.PlayerFlop. Quedan {heartCount} corazonziños");
     }
 
