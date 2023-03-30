@@ -9,7 +9,8 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     public float gameDuration;
-    
+    public List<Transform> continuePlayerPoints;
+
     [SerializeField] private TextMeshProUGUI timeCounter;
     [SerializeField] private float blinkingStartSeconds = 5f;
     [SerializeField] private List<Image> heartImages;
@@ -21,12 +22,13 @@ public class GameManager : MonoBehaviour
     float timeRemaining;
     float positionDeadByFall;
     bool gameOver, stageOver;
+    int heartCount;
 
     public bool GameOver { get { return gameOver; } }
     public float PositionDeadByFall {get {return positionDeadByFall; } }
 
     private Color notBlinkingColor;
-    
+
     private GameObject player;
     private Vector3 initialPlayerPosition;
     private Vector3 initialPlayerScale;
@@ -36,7 +38,9 @@ public class GameManager : MonoBehaviour
         instance = this;
     }
 
-    void Start() {
+    void Start()
+    {
+        heartCount = heartImages.Count;
 
         player = GameObject.Find("Player");
         initialPlayerPosition = player.transform.position;
@@ -60,11 +64,11 @@ public class GameManager : MonoBehaviour
                 GameEnd();
             }
 
-            else 
+            else
             {
                 // Mostrar el tiempo restante en GUI
                 timeCounter.text = ConvertSecondsToMinutesAndSeconds(timeRemaining);
-                
+
                 if (timeRemaining <= blinkingStartSeconds) {
                     StartCoroutine(BlinkingTime());
                 }
@@ -97,7 +101,7 @@ public class GameManager : MonoBehaviour
         gameOver = true;
         timeCounter.text = "";
         heartImages.ForEach(h => h.color = Color.black);
-        
+
         StartCoroutine(GameOverRestartCoroutine());
     }
 
@@ -125,9 +129,65 @@ public class GameManager : MonoBehaviour
         player.transform.position = initialPlayerPosition;
         player.transform.localScale = initialPlayerScale;
         Camera.main.gameObject.transform.position = initialCameraPosition;
+
+        heartCount = heartImages.Count;
+        heartImages.ForEach(h => h.color = Color.white);
+        
         menuCanvas.SetActive(false);
+
         Time.timeScale = 1f;
         timeCounter.color = notBlinkingColor;
+    }
+
+    public void PlayerFlop( Vector3 flopPosition )
+    {
+        RemoveHearts();
+
+        if( heartCount == 0 )
+        {
+            GameEnd();
+        }
+
+        // Colócase o Player no último punto de espanea antes do foso
+        else {
+            // Accions cando o Player cae nun foso
+            RepositionPlayer( flopPosition );
+        }
+    }
+
+    void RepositionPlayer(Vector3 flopPosition )
+    {
+        Vector3 iPosition;
+
+        // Posición de inicio do Player
+        Vector3 continuePoint = continuePlayerPoints[0].position;
+
+        for( int i = 0; i < continuePlayerPoints.Count; i++ )
+        {
+            iPosition = continuePlayerPoints[i].position;
+
+            if( flopPosition.x > iPosition.x )
+            {
+                continuePoint = continuePlayerPoints[i].position;
+            }
+
+            // O punto de caída nunca será menor que o de inicio
+            else {
+                continuePoint = continuePlayerPoints[i-1].position;
+            }
+        }
+
+        player.transform.position = continuePoint;
+        Camera.main.gameObject.transform.position = initialCameraPosition;
+    }
+
+    void RemoveHearts()
+    {
+        heartCount--;
+        Image lastHeart = heartImages[heartCount];
+        lastHeart.color = Color.black;
+
+        Debug.Log($"GameManager.PlayerFlop. Quedan {heartCount} corazonziños");
     }
 
     private void InitializeLevel() {
@@ -140,13 +200,13 @@ public class GameManager : MonoBehaviour
         timeCounter.text = ConvertSecondsToMinutesAndSeconds(gameDuration);
     }
 
-    private IEnumerator BlinkingTime() {     
+    private IEnumerator BlinkingTime() {
         while (timeRemaining > 0f && timeRemaining <= blinkingStartSeconds) {
             timeCounter.color = Color.Lerp(notBlinkingColor, Color.red, Mathf.PingPong(Time.time, 1f));
             yield return new WaitForSeconds(0.5f);
         }
     }
-    
+
     private IEnumerator GameOverRestartCoroutine() {
         yield return new WaitForSeconds(2);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);

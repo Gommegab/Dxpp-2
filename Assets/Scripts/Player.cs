@@ -44,8 +44,8 @@ public class Player : MonoBehaviour
 
             if ( transform.position.y < GameManager.instance.PositionDeadByFall )
             {
-                Debug.Log( "Player: Vacuum fall!" );
-                GameManager.instance.SetGameOver();
+                // Debug.Log( "Player: Vacuum fall!" );
+                GameManager.instance.PlayerFlop( transform.position );
             }
 
             if (isGrounded)
