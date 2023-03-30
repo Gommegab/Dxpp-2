@@ -3,7 +3,7 @@ using UnityEngine;
 public class Menu : MonoBehaviour {
     public void Play() {
         gameObject.SetActive(false);
-        GameManager.instance.Continue();
+        GameManager.instance.StartGame();
         // Debug.Log("Play started");
     }
 
@@ -12,7 +12,7 @@ public class Menu : MonoBehaviour {
         Application.Quit();
     }
 
-    public void Continue() {
-
+    public void Restart() {
+        GameManager.instance.Restart();
     }
 }

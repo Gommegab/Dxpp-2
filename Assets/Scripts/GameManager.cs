@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -12,6 +13,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI timeCounter;
     [SerializeField] private float blinkingStartSeconds = 5f;
     [SerializeField] private List<Image> heartImages;
+    [SerializeField] private GameObject menuCanvas;
+    [SerializeField] private GameObject buttonPlay;
+    [SerializeField] private GameObject buttonContinue;
+    [SerializeField] private GameObject buttonRestart;
 
     float timeRemaining;
     float positionDeadByFall;
@@ -21,31 +26,32 @@ public class GameManager : MonoBehaviour
     public float PositionDeadByFall {get {return positionDeadByFall; } }
 
     private Color notBlinkingColor;
+    
+    private GameObject player;
+    private Vector3 initialPlayerPosition;
+    private Vector3 initialPlayerScale;
+    private Vector3 initialCameraPosition;
+
+    private bool gameStarted = false;
 
     void Awake() {
         instance = this;
     }
 
-    void Start()
-    {
+    void Start() {
+
+        player = GameObject.Find("Player");
+        initialPlayerPosition = player.transform.position;
+        initialPlayerScale = player.transform.localScale;
+        initialCameraPosition = Camera.main.gameObject.transform.position;
 
         Pause();    // Inicializamos o xogo en pausa para arrancalo dende o menú
-
-        gameOver = false;
-        stageOver = false;
-        // gameDuration = 15f;
-        positionDeadByFall = -4f;
-        // Inicializar o cronómetro ca duración máxima do xogo
-        timeRemaining = gameDuration;
-        notBlinkingColor = timeCounter.color;
-
-        timeCounter.text = ConvertSecondsToMinutesAndSeconds(gameDuration);
+        InitializeLevel();
     }
 
     void Update()
     {
-        if( ! stageOver && ! gameOver )
-        {
+        if( ! stageOver && ! gameOver ) {
             // Resta o tempo transcurrido dende o último frame ao tempo restante
             timeRemaining -= Time.deltaTime;
 
@@ -63,6 +69,17 @@ public class GameManager : MonoBehaviour
                 if (timeRemaining <= blinkingStartSeconds) {
                     StartCoroutine(BlinkingTime());
                 }
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape)) {
+            Pause();
+            menuCanvas.SetActive(true);
+            if (!gameStarted) {
+                buttonPlay.SetActive(false);
+                buttonRestart.SetActive(true);
+                buttonContinue.SetActive(true);
+                gameStarted = true;
             }
         }
     }
@@ -96,7 +113,7 @@ public class GameManager : MonoBehaviour
     }
 
     private IEnumerator BlinkingTime() {     
-        while (timeRemaining > 0f) {
+        while (timeRemaining > 0f && gameStarted) {
             timeCounter.color = Color.Lerp(notBlinkingColor, Color.red, Mathf.PingPong(Time.time, 1f));
             yield return new WaitForSeconds(0.5f);
         }
@@ -106,7 +123,30 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f;
     }
 
-    public void Continue() {
+    public void StartGame() {
         Time.timeScale = 1f;
+    }
+
+    public void Restart() {
+        InitializeLevel();
+        player.transform.position = initialPlayerPosition;
+        player.transform.localScale = initialPlayerScale;
+        Camera.main.gameObject.transform.position = initialCameraPosition;
+        timeCounter.color = notBlinkingColor;
+        gameStarted = false;
+        menuCanvas.SetActive(false);
+        Time.timeScale = 1f;
+    }
+
+    private void InitializeLevel() {
+        gameOver = false;
+        stageOver = false;
+        // gameDuration = 15f;
+        positionDeadByFall = -4f;
+        // Inicializar o cronómetro ca duración máxima do xogo
+        timeRemaining = gameDuration;
+        notBlinkingColor = timeCounter.color;
+
+        timeCounter.text = ConvertSecondsToMinutesAndSeconds(gameDuration);
     }
 }
