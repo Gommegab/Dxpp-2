@@ -100,7 +100,7 @@ public class GameManager : MonoBehaviour
         // Debug.Log("GAME OVER");
         gameOver = true;
         timeCounter.text = "";
-        // heartImages.ForEach(h => h.color = Color.black);
+        heartImages.ForEach(h => h.color = Color.black);
 
         StartCoroutine(GameOverRestartCoroutine());
     }
@@ -118,6 +118,8 @@ public class GameManager : MonoBehaviour
 
     public void Pause() {
         Time.timeScale = 0f;
+        heartCount = heartImages.Count;
+        heartImages.ForEach(h => h.color = Color.white);
     }
 
     public void StartGame() {
