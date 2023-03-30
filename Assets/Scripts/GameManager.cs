@@ -118,8 +118,6 @@ public class GameManager : MonoBehaviour
 
     public void Pause() {
         Time.timeScale = 0f;
-        heartCount = heartImages.Count;
-        heartImages.ForEach(h => h.color = Color.white);
     }
 
     public void StartGame() {
@@ -131,7 +129,12 @@ public class GameManager : MonoBehaviour
         player.transform.position = initialPlayerPosition;
         player.transform.localScale = initialPlayerScale;
         Camera.main.gameObject.transform.position = initialCameraPosition;
+
+        heartCount = heartImages.Count;
+        heartImages.ForEach(h => h.color = Color.white);
+        
         menuCanvas.SetActive(false);
+
         Time.timeScale = 1f;
         timeCounter.color = notBlinkingColor;
     }

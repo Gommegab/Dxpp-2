@@ -19900,7 +19900,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9755754952dce6f58ef0948e09f10f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameDuration: 15
+  gameDuration: 30
   continuePlayerPoints:
   - {fileID: 1821788846}
   - {fileID: 1390041705}
