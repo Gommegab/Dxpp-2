@@ -178,11 +178,9 @@ public class GameManager : MonoBehaviour
 
     void RemoveHearts()
     {
-        Image lastHeart = heartImages[heartImages.Count - 1];
+        heartCount--;
+        Image lastHeart = heartImages[heartCount];
         lastHeart.color = Color.black;
-
-        heartImages.RemoveAt(heartImages.Count - 1);
-        heartCount = heartImages.Count;
 
         Debug.Log($"GameManager.PlayerFlop. Quedan {heartCount} corazonziños");
     }
