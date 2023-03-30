@@ -42,6 +42,7 @@ public class GameManager : MonoBehaviour
         initialPlayerPosition = player.transform.position;
         initialPlayerScale = player.transform.localScale;
         initialCameraPosition = Camera.main.gameObject.transform.position;
+        notBlinkingColor = timeCounter.color;
 
         Pause();    // Inicializamos o xogo en pausa para arrancalo dende o menú
         InitializeLevel();
@@ -96,7 +97,8 @@ public class GameManager : MonoBehaviour
         gameOver = true;
         timeCounter.text = "";
         heartImages.ForEach(h => h.color = Color.black);
-        // TODO: Lanzar menú de novo
+        
+        StartCoroutine(GameOverRestartCoroutine());
     }
 
     public void StageEnd()
@@ -108,13 +110,6 @@ public class GameManager : MonoBehaviour
     public void SetGameOver()
     {
         GameEnd();
-    }
-
-    private IEnumerator BlinkingTime() {     
-        while (timeRemaining > 0f && timeRemaining <= blinkingStartSeconds) {
-            timeCounter.color = Color.Lerp(notBlinkingColor, Color.red, Mathf.PingPong(Time.time, 1f));
-            yield return new WaitForSeconds(0.5f);
-        }
     }
 
     public void Pause() {
@@ -142,8 +137,18 @@ public class GameManager : MonoBehaviour
         positionDeadByFall = -4f;
         // Inicializar o cronómetro ca duración máxima do xogo
         timeRemaining = gameDuration;
-        notBlinkingColor = timeCounter.color;
-
         timeCounter.text = ConvertSecondsToMinutesAndSeconds(gameDuration);
+    }
+
+    private IEnumerator BlinkingTime() {     
+        while (timeRemaining > 0f && timeRemaining <= blinkingStartSeconds) {
+            timeCounter.color = Color.Lerp(notBlinkingColor, Color.red, Mathf.PingPong(Time.time, 1f));
+            yield return new WaitForSeconds(0.5f);
+        }
+    }
+    
+    private IEnumerator GameOverRestartCoroutine() {
+        yield return new WaitForSeconds(2);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
