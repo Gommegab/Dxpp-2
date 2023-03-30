@@ -100,7 +100,7 @@ public class GameManager : MonoBehaviour
         // Debug.Log("GAME OVER");
         gameOver = true;
         timeCounter.text = "";
-        heartImages.ForEach(h => h.color = Color.black);
+        // heartImages.ForEach(h => h.color = Color.black);
 
         StartCoroutine(GameOverRestartCoroutine());
     }
@@ -136,6 +136,8 @@ public class GameManager : MonoBehaviour
 
     public void PlayerFlop( Vector3 flopPosition )
     {
+        RemoveHearts();
+
         if( heartCount == 0 )
         {
             GameEnd();
@@ -144,7 +146,6 @@ public class GameManager : MonoBehaviour
         // Colócase o Player no último punto de espanea antes do foso
         else {
             // Accions cando o Player cae nun foso
-            RemoveHearts();
             RepositionPlayer( flopPosition );
         }
     }
