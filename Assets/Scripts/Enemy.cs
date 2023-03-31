@@ -21,13 +21,29 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Movimento
+        // Movemento
         Vector3 position = transform.position;
         position += velocity * Time.deltaTime;
         transform.position = position;
 
+        // Dirección
         Vector3 localScale = transform.localScale;
         localScale.x = horizontal;
         transform.localScale = localScale;
+    }
+
+    void OnTriggerEnter2D( Collider2D other )
+    {
+        if( other.gameObject.CompareTag("EnemyGuard") )
+        {
+            // print("Enemy.OnTriggerEnter2D");
+            ReverseMovement();
+        }
+    }
+
+    void ReverseMovement()
+    {
+        horizontal = -horizontal;
+        velocity = new Vector3(speed, 0, 0) * horizontal;
     }
 }
