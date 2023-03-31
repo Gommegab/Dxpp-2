@@ -15,6 +15,8 @@ public class Enemy : MonoBehaviour
     Vector3 velocity;
     Animator animator;
 
+    private bool playerIsClose = false;
+
 
     void Start()
     {
@@ -28,16 +30,12 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Movemento
-        Vector3 position = transform.position;
-        position += velocity * Time.deltaTime;
-        transform.position = position;
-
-        // Dirección
-        Vector3 localScale = transform.localScale;
-        localScale.x = horizontal;
-        transform.localScale = localScale;
-
+        if (!playerIsClose) {
+            walkAround();
+        } else {
+            MoveTovardsPlayer();
+        }
+        
         // Ignorando a colisión entre
         // o collider de detección da Player e os Colliders de garda
         foreach( Collider2D guardCollider in guardColliders )
@@ -52,41 +50,16 @@ public class Enemy : MonoBehaviour
         velocity = new Vector3(speed, 0, 0) * horizontal;
     }
 
-    void LookAtPlayer()
-    {
-        Vector3 direction = player.transform.position - transform.position;
-
-        if( direction.x < 0.0f )
-        {
-            ReverseMovement();
-        }
-
-        // if( direction.x >= 0.0f )
-        // {
-        //     transform.localScale = new Vector3( 1.0f, 1.0f, 1.0f );
-        // }
-        //
-        // else {
-        //     transform.localScale = new Vector3( -1.0f, 1.0f, 1.0f );
-        // }
-    }
-
     void OnTriggerEnter2D( Collider2D other )
     {
         if( other.gameObject.CompareTag("EnemyGuard") )
         {
-            print($"Enemy.OnTriggerEnter2D {other.name}");
-
             ReverseMovement();
         }
 
         if( other.gameObject.CompareTag("Player") )
         {
-            print($"Enemy.OnTriggerEnter2D {other.name}");
-
-            // Enemy encárase á Player
-            LookAtPlayer();
-
+            playerIsClose = true;
             animator.SetBool( "attack", true );
         }
     }
@@ -95,9 +68,28 @@ public class Enemy : MonoBehaviour
     {
         if( other.gameObject.CompareTag("Player") )
         {
-            print($"Enemy.OnTriggerExit2D {other.name}");
-
+            playerIsClose = false;
             animator.SetBool( "attack", false );
         }
+    }
+
+    private void walkAround() {
+        // Movemento
+        Vector3 position = transform.position;
+        position += velocity * Time.deltaTime;
+        transform.position = position;
+
+        // Dirección
+        Vector3 localScale = transform.localScale;
+        localScale.x = horizontal;
+        transform.localScale = localScale;
+    }
+
+    private void MoveTovardsPlayer() {
+        transform.position = Vector2.MoveTowards(transform.position, player.transform.position, speed * Time.deltaTime);
+        float direction = player.transform.position.x - transform.position.x;
+        Vector3 localScale = transform.localScale;
+        localScale.x = direction > 0 ? Mathf.Abs(localScale.x) : Mathf.Abs(localScale.x) * -1;
+        transform.localScale = localScale;
     }
 }
