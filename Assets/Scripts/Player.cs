@@ -58,7 +58,7 @@ public class Player : MonoBehaviour
                     transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
                 }
 
-                if( Input.GetKeyDown(KeyCode.W) )
+                if( Input.GetButtonDown("Jump") )
                 {
                     Jump();
                 }
@@ -90,6 +90,21 @@ public class Player : MonoBehaviour
     {
         rb.AddForce( Vector2.up * jumpForce, ForceMode2D.Impulse );
         animator.SetBool( "jumping", true );
+    }
+
+    void ReverseMovement()
+    {
+        horizontal = -horizontal;
+        rb.velocity = new Vector2( horizontal * speed, rb.velocity.y);
+    }
+
+    void OnCollisionEnter2D( Collision2D other )
+    {
+        if( other.gameObject.CompareTag("Border") )
+        {
+            print("Player.OnTriggerEnter2D");
+            ReverseMovement();
+        }
     }
 
     bool IsGrounded()

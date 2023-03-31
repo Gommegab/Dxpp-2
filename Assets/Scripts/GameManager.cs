@@ -52,7 +52,8 @@ public class GameManager : MonoBehaviour
         InitializeLevel();
     }
 
-    void Update() {
+    void Update()
+    {
 
         if( ! stageOver && ! gameOver ) {
             // Resta o tempo transcurrido dende o último frame ao tempo restante
@@ -72,6 +73,8 @@ public class GameManager : MonoBehaviour
                 if (timeRemaining <= blinkingStartSeconds) {
                     StartCoroutine(BlinkingTime());
                 }
+
+                // print($"GameManager. Tiempo restante: {timeCounter.text}");
             }
         }
 
@@ -132,7 +135,7 @@ public class GameManager : MonoBehaviour
 
         heartCount = heartImages.Count;
         heartImages.ForEach(h => h.color = Color.white);
-        
+
         menuCanvas.SetActive(false);
 
         Time.timeScale = 1f;
