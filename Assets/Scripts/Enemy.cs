@@ -6,7 +6,7 @@ public class Enemy : MonoBehaviour
 {
     public GameObject player;
     public Collider2D detectionCollider;
-    public Collider2D guardCollider;
+    public List<Collider2D> guardColliders;
 
     public float speed;
 
@@ -40,7 +40,10 @@ public class Enemy : MonoBehaviour
 
         // Ignorando a colisión entre
         // o collider de detección da Player e os Colliders de garda
-        Physics2D.IgnoreCollision( detectionCollider, guardCollider );
+        foreach( Collider2D guardCollider in guardColliders )
+        {
+            Physics2D.IgnoreCollision( detectionCollider, guardCollider );
+        }
     }
 
     void ReverseMovement()
@@ -73,12 +76,16 @@ public class Enemy : MonoBehaviour
         if( other.gameObject.CompareTag("EnemyGuard") )
         {
             print($"Enemy.OnTriggerEnter2D {other.name}");
+
             ReverseMovement();
         }
 
         if( other.gameObject.CompareTag("Player") )
         {
             print($"Enemy.OnTriggerEnter2D {other.name}");
+
+            // Enemy encárase á Player
+            LookAtPlayer();
 
             animator.SetBool( "attack", true );
         }
