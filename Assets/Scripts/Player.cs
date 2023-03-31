@@ -92,6 +92,21 @@ public class Player : MonoBehaviour
         animator.SetBool( "jumping", true );
     }
 
+    void ReverseMovement()
+    {
+        horizontal = -horizontal;
+        rb.velocity = new Vector2( horizontal * speed, rb.velocity.y);
+    }
+
+    void OnCollisionEnter2D( Collision2D other )
+    {
+        if( other.gameObject.CompareTag("Border") )
+        {
+            print("Player.OnTriggerEnter2D");
+            ReverseMovement();
+        }
+    }
+
     bool IsGrounded()
     {
         // Physics.Raycast

@@ -32,6 +32,12 @@ public class Enemy : MonoBehaviour
         transform.localScale = localScale;
     }
 
+    void ReverseMovement()
+    {
+        horizontal = -horizontal;
+        velocity = new Vector3(speed, 0, 0) * horizontal;
+    }
+
     void OnTriggerEnter2D( Collider2D other )
     {
         if( other.gameObject.CompareTag("EnemyGuard") )
@@ -39,11 +45,5 @@ public class Enemy : MonoBehaviour
             // print("Enemy.OnTriggerEnter2D");
             ReverseMovement();
         }
-    }
-
-    void ReverseMovement()
-    {
-        horizontal = -horizontal;
-        velocity = new Vector3(speed, 0, 0) * horizontal;
     }
 }
