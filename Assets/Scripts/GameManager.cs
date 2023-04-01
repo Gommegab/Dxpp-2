@@ -184,7 +184,7 @@ public class GameManager : MonoBehaviour
         Camera.main.gameObject.transform.position = initialCameraPosition;
     }
 
-    void RemoveHearts()
+    public void RemoveHearts()
     {
         heartCount--;
         Image lastHeart = heartImages[heartCount];

@@ -41,6 +41,12 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    void OnCollisionEnter2D(Collision2D other) {
+        if (other.gameObject.CompareTag("Player")) {
+            player.GetComponent<Player>().ReceiveAttack(horizontal);
+        }
+    }
+
     public void ReverseMovement()
     {
         horizontal = -horizontal;
@@ -58,6 +64,8 @@ public class Enemy : MonoBehaviour
         position += velocity * Time.deltaTime;
         transform.position = position;
 
+        horizontal = (int) Mathf.Sign(velocity.x);
+
         // Dirección
         Vector3 localScale = transform.localScale;
         localScale.x = horizontal;
@@ -70,5 +78,6 @@ public class Enemy : MonoBehaviour
         Vector3 localScale = transform.localScale;
         localScale.x = direction > 0 ? Mathf.Abs(localScale.x) : Mathf.Abs(localScale.x) * -1;
         transform.localScale = localScale;
+        horizontal = (int) Mathf.Sign(localScale.x);
     }
 }

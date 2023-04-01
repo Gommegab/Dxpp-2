@@ -25,6 +25,9 @@ public class DetectionCollider : MonoBehaviour {
         if( other.gameObject.CompareTag("Player")) {
             enemy.SetPlayerIsClose(true);
         }
+        if (other.gameObject.CompareTag("Enemy")) {
+            enemy.SetPlayerIsClose(false);
+        }
     }
 
     void OnTriggerExit2D(Collider2D other) {

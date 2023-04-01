@@ -14,6 +14,7 @@ public class Player : MonoBehaviour
     Animator animator;
 
     private bool isGrounded;
+    private bool isBeingAttacked = false;
 
 
     void Start()
@@ -81,11 +82,20 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
-        if(isGrounded)
+        if(isGrounded && !isBeingAttacked)
         {
             // Movimiento con las teclas GetAxisRaw("Horizontal");
             rb.velocity = new Vector2( horizontal * speed, rb.velocity.y);
         }
+    }
+
+    public void ReceiveAttack(int horizontal) {
+        isBeingAttacked = true;
+        rb.AddForce( new Vector3(horizontal, 1) * 4f, ForceMode2D.Impulse);
+        animator.SetTrigger("hit");
+        StartCoroutine(coIsBeingAttacked());
+        animator.SetBool("jumping", true);
+        GameManager.instance.RemoveHearts();
     }
 
     void Jump()
@@ -126,5 +136,14 @@ public class Player : MonoBehaviour
         // print($"Player.IsGrounded() = {grounded}" );
 
         return grounded;
+    }
+
+    private IEnumerator coIsBeingAttacked() {
+        while (isBeingAttacked) {
+            yield return new WaitForSeconds(0.5f);
+            if (isGrounded) {
+                isBeingAttacked = false;
+            }
+        }
     }
 }
