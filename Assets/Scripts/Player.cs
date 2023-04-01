@@ -95,7 +95,7 @@ public class Player : MonoBehaviour
             isBeingAttacked = true;
             isFlickerEnabled = true;
 
-            rb.AddForce( new Vector3(horizontal, 1) * 4f, ForceMode2D.Impulse);
+            rb.AddForce( new Vector3(horizontal, 1) * 2.5f, ForceMode2D.Impulse);
 
             animator.SetTrigger("hit");
             animator.SetBool("jumping", true);
