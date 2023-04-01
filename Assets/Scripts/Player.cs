@@ -15,6 +15,7 @@ public class Player : MonoBehaviour
 
     private bool isGrounded;
     private bool isBeingAttacked = false;
+    private bool isFlickerEnabled = false;
 
 
     void Start()
@@ -90,12 +91,21 @@ public class Player : MonoBehaviour
     }
 
     public void ReceiveAttack(int horizontal) {
-        isBeingAttacked = true;
-        rb.AddForce( new Vector3(horizontal, 1) * 4f, ForceMode2D.Impulse);
-        animator.SetTrigger("hit");
-        StartCoroutine(coIsBeingAttacked());
-        animator.SetBool("jumping", true);
-        GameManager.instance.RemoveHearts();
+        if (!isFlickerEnabled) {
+            isBeingAttacked = true;
+            isFlickerEnabled = true;
+
+            rb.AddForce( new Vector3(horizontal, 1) * 4f, ForceMode2D.Impulse);
+
+            animator.SetTrigger("hit");
+            animator.SetBool("jumping", true);
+            
+            StartCoroutine(coIsBeingAttacked());
+            StartCoroutine(coFlickOnAttack());
+
+            GameManager.instance.RemoveHearts();
+            
+        }        
     }
 
     void Jump()
@@ -145,5 +155,16 @@ public class Player : MonoBehaviour
                 isBeingAttacked = false;
             }
         }
+    }
+
+    private IEnumerator coFlickOnAttack() {
+        // while (isFlickerEnabled) {
+        for (int i = 0; i < 4; i++) {
+            GetComponent<SpriteRenderer>().color = Color.red;
+            yield return new WaitForSeconds(0.3f);
+            GetComponent<SpriteRenderer>().color = Color.white;
+            yield return new WaitForSeconds(0.3f);
+        }
+        isFlickerEnabled = false;
     }
 }
