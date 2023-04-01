@@ -5,8 +5,6 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     public GameObject player;
-    public Collider2D detectionCollider;
-    public List<Collider2D> guardColliders;
 
     public float speed;
 
@@ -33,44 +31,25 @@ public class Enemy : MonoBehaviour
         if (!playerIsClose) {
             walkAround();
         } else {
-            MoveTovardsPlayer();
-        }
-        
-        // Ignorando a colisión entre
-        // o collider de detección da Player e os Colliders de garda
-        foreach( Collider2D guardCollider in guardColliders )
-        {
-            Physics2D.IgnoreCollision( detectionCollider, guardCollider );
+            MoveTowardsPlayer();
         }
     }
 
-    void ReverseMovement()
+    void OnTriggerEnter2D( Collider2D other ) {
+        if (other.gameObject.CompareTag("EnemyGuard")) {
+            ReverseMovement();
+        }
+    }
+
+    public void ReverseMovement()
     {
         horizontal = -horizontal;
         velocity = new Vector3(speed, 0, 0) * horizontal;
     }
 
-    void OnTriggerEnter2D( Collider2D other )
-    {
-        if( other.gameObject.CompareTag("EnemyGuard") )
-        {
-            ReverseMovement();
-        }
-
-        if( other.gameObject.CompareTag("Player") )
-        {
-            playerIsClose = true;
-            animator.SetBool( "attack", true );
-        }
-    }
-
-    void OnTriggerExit2D( Collider2D other )
-    {
-        if( other.gameObject.CompareTag("Player") )
-        {
-            playerIsClose = false;
-            animator.SetBool( "attack", false );
-        }
+    public void SetPlayerIsClose(bool isClose) {
+        playerIsClose = isClose;
+        animator.SetBool( "attack", isClose );
     }
 
     private void walkAround() {
@@ -85,7 +64,7 @@ public class Enemy : MonoBehaviour
         transform.localScale = localScale;
     }
 
-    private void MoveTovardsPlayer() {
+    private void MoveTowardsPlayer() {
         transform.position = Vector2.MoveTowards(transform.position, player.transform.position, speed * Time.deltaTime);
         float direction = player.transform.position.x - transform.position.x;
         Vector3 localScale = transform.localScale;

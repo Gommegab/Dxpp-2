@@ -13,6 +13,8 @@ public class Player : MonoBehaviour
     Rigidbody2D rb;
     Animator animator;
 
+    private bool isGrounded;
+
 
     void Start()
     {
@@ -31,7 +33,7 @@ public class Player : MonoBehaviour
     {
         if ( ! GameManager.instance.GameOver )
         {
-            bool isGrounded = IsGrounded();
+            isGrounded = IsGrounded();
 
             // Values -1.0f, 0f, 1.0f
             horizontal = Input.GetAxisRaw("Horizontal");
@@ -79,7 +81,7 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
-        if( IsGrounded() )
+        if(isGrounded)
         {
             // Movimiento con las teclas GetAxisRaw("Horizontal");
             rb.velocity = new Vector2( horizontal * speed, rb.velocity.y);
