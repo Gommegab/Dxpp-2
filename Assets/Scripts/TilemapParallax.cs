@@ -4,18 +4,33 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class TilemapParallax : MonoBehaviour {
+    [Range(0,1f)][SerializeField] private float parallaxMultiplier = 0.75f;
 
-    [SerializeField] private float scrollSpeed = 0.75f;
-    [SerializeField] private GameObject viewTarget; // Cámara
+    private Transform cameraTransform;
+    private Vector3 previousCameraPosition;
+    private float spriteWidth, startPosition;
+    private float offsetTranslate = 3f;
     
-    private Tilemap tilemap;
-
     void Start() {
-        tilemap = GetComponent<Tilemap>();
+        cameraTransform = Camera.main.transform;
+        previousCameraPosition = cameraTransform.position;
+        spriteWidth = GetComponent<TilemapRenderer>().bounds.size.x;
+        startPosition = transform.position.x;
     }
-    
-    void FixedUpdate() {
-        float newXPos = viewTarget.transform.position.x * scrollSpeed;
-        tilemap.transform.position = new Vector3(newXPos, tilemap.transform.position.y, tilemap.transform.position.z);
+
+    void LateUpdate() {
+        float deltaX = (cameraTransform.position.x - previousCameraPosition.x) * parallaxMultiplier;    
+        float moveAmount = cameraTransform.position.x * (1 - parallaxMultiplier);
+        Debug.Log(spriteWidth + " - " + startPosition + " - " + moveAmount);
+        transform.Translate(new Vector3(deltaX, 0, 0));
+        previousCameraPosition = cameraTransform.position;
+
+        if (moveAmount > startPosition + spriteWidth - offsetTranslate) {
+            transform.Translate(new Vector3(spriteWidth, 0, 0));
+            startPosition += spriteWidth;
+        } else if (moveAmount < startPosition - spriteWidth + offsetTranslate * 2) {
+            transform.Translate(new Vector3(-spriteWidth, 0, 0));
+            startPosition -= spriteWidth;
+        }
     }
 }
