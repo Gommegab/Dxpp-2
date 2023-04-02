@@ -145,17 +145,8 @@ public class GameManager : MonoBehaviour
     public void PlayerFlop( Vector3 flopPosition )
     {
         RemoveHearts();
-
-        if( heartCount == 0 )
-        {
-            GameEnd();
-        }
-
-        // Colócase o Player no último punto de espanea antes do foso
-        else {
-            // Accions cando o Player cae nun foso
-            RepositionPlayer( flopPosition );
-        }
+        // Accions cando o Player cae nun foso
+        RepositionPlayer( flopPosition );
     }
 
     void RepositionPlayer(Vector3 flopPosition )
@@ -184,9 +175,14 @@ public class GameManager : MonoBehaviour
         Camera.main.gameObject.transform.position = initialCameraPosition;
     }
 
-    void RemoveHearts()
+    public void RemoveHearts()
     {
         heartCount--;
+        if( heartCount == 0 )
+        {
+            GameEnd();
+        }
+        
         Image lastHeart = heartImages[heartCount];
         lastHeart.color = Color.black;
 
