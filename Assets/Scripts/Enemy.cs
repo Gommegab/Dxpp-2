@@ -4,20 +4,22 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    public GameObject player;
+    
+    [SerializeField] private float speed;
+    [SerializeField] private Transform groundAdvanceController;
+    [SerializeField] private Vector3 gcDimensionBox;
 
-    public float speed;
-
-    int horizontal;
-
-    Vector3 velocity;
-    Animator animator;
+    private int horizontal;
+    private GameObject player;
+    private Vector3 velocity;
+    private Animator animator;
 
     private bool playerIsClose = false;
 
 
-    void Start()
-    {
+    void Start() {
+
+        player = GameObject.Find("Player");
         // Dirección do mov [ -1 | +1]
         horizontal = 1;
 
@@ -26,8 +28,7 @@ public class Enemy : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
-    {
+    void Update() {
         if (!playerIsClose) {
             walkAround();
         } else {
@@ -35,8 +36,9 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    void OnTriggerEnter2D( Collider2D other ) {
-        if (other.gameObject.CompareTag("EnemyGuard")) {
+    void FixedUpdate() {
+        bool test = Physics2D.OverlapBox(groundAdvanceController.position, gcDimensionBox, 0f, LayerMask.GetMask("Ground"));
+        if (!test) {
             ReverseMovement();
         }
     }
@@ -79,5 +81,10 @@ public class Enemy : MonoBehaviour
         localScale.x = direction > 0 ? Mathf.Abs(localScale.x) : Mathf.Abs(localScale.x) * -1;
         transform.localScale = localScale;
         horizontal = (int) Mathf.Sign(localScale.x);
+    }
+
+    private void OnDrawGizmos() {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireCube(groundAdvanceController.position, gcDimensionBox);
     }
 }
