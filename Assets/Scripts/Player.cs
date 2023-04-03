@@ -40,9 +40,6 @@ public class Player : MonoBehaviour
             // Values -1.0f, 0f, 1.0f
             horizontal = Input.GetAxisRaw("Horizontal");
 
-            // Se activa la animación de correr cuando Player no esté parado
-            animator.SetBool( "running", horizontal != 0.0f );
-
             // Se activa la animación de caer a velocidad Y hacia abajo
             animator.SetBool( "falling", rb.velocity.y < 0 && !isGrounded );
 
@@ -54,6 +51,10 @@ public class Player : MonoBehaviour
 
             if (isGrounded)
             {
+
+                // Se activa la animación de correr cuando Player no esté parado
+                animator.SetBool( "running", horizontal != 0.0f );
+
                 // Player mira en la misma dirección que su mvto.
                 if ( horizontal < 0.0f ) {
                     transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
@@ -159,11 +160,11 @@ public class Player : MonoBehaviour
 
     private IEnumerator coFlickOnAttack() {
         // while (isFlickerEnabled) {
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 5; i++) {
             GetComponent<SpriteRenderer>().color = Color.red;
-            yield return new WaitForSeconds(0.3f);
+            yield return new WaitForSeconds(0.4f);
             GetComponent<SpriteRenderer>().color = Color.white;
-            yield return new WaitForSeconds(0.3f);
+            yield return new WaitForSeconds(0.4f);
         }
         isFlickerEnabled = false;
     }
