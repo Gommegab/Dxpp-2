@@ -11,6 +11,14 @@ public class GameManager : MonoBehaviour
     public float gameDuration;
     public List<Transform> continuePlayerPoints;
 
+    // --- Música i efectos de son ----------------------
+    public AudioClip menuMusic;
+    public AudioClip gamePlayMusic;
+    // public AudioClip gameEndMusic;
+
+    AudioSource audioSource;
+    // --------------------------------------------------
+
     [SerializeField] private TextMeshProUGUI timeCounter;
     [SerializeField] private float blinkingStartSeconds = 5f;
     [SerializeField] private List<Image> heartImages;
@@ -36,6 +44,7 @@ public class GameManager : MonoBehaviour
 
     void Awake() {
         instance = this;
+        audioSource = GetComponent<AudioSource>();
     }
 
     void Start()
@@ -121,10 +130,14 @@ public class GameManager : MonoBehaviour
 
     public void Pause() {
         Time.timeScale = 0f;
+        AudioManager.instance.StopMusic();
+        AudioManager.instance.PlayMusic( menuMusic );
     }
 
     public void StartGame() {
         Time.timeScale = 1f;
+        AudioManager.instance.StopMusic();
+        AudioManager.instance.PlayMusic( gamePlayMusic );
     }
 
     public void Restart() {
@@ -182,7 +195,7 @@ public class GameManager : MonoBehaviour
         {
             GameEnd();
         }
-        
+
         Image lastHeart = heartImages[heartCount];
         lastHeart.color = Color.black;
 
