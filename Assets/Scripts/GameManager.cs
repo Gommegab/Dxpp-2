@@ -50,6 +50,8 @@ public class GameManager : MonoBehaviour
         player = GameObject.Find("Player");
         // AudioSource do Player (música da escea)
         playerAudio = player.GetComponent<AudioSource>();
+        // Volume de inicio
+        playerAudio.volume = 1f;
 
         initialPlayerPosition = player.transform.position;
         initialPlayerScale = player.transform.localScale;
@@ -220,6 +222,13 @@ public class GameManager : MonoBehaviour
     private IEnumerator BlinkingTime() {
         while (timeRemaining > 0f && timeRemaining <= blinkingStartSeconds) {
             timeCounter.color = Color.Lerp(notBlinkingColor, Color.red, Mathf.PingPong(Time.time, 1f));
+
+            // Reducir o volume do AudioSource do Player
+            if ( ! playerAudio.mute )
+            {
+                playerAudio.volume = Mathf.Lerp( playerAudio.volume, 0f, Time.deltaTime / blinkingStartSeconds );
+            }
+
             yield return new WaitForSeconds(0.5f);
         }
     }
