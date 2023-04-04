@@ -100,13 +100,13 @@ public class Player : MonoBehaviour
 
             animator.SetTrigger("hit");
             animator.SetBool("jumping", true);
-            
+
             StartCoroutine(coIsBeingAttacked());
             StartCoroutine(coFlickOnAttack());
 
             GameManager.instance.RemoveHearts();
-            
-        }        
+
+        }
     }
 
     void Jump()
