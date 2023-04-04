@@ -11,14 +11,11 @@ public class GameManager : MonoBehaviour
     public float gameDuration;
     public List<Transform> continuePlayerPoints;
 
-    // --- Música i efectos de son ----------------------
-    public AudioClip menuMusic;
-    public AudioClip gamePlayMusic;
-    // public AudioClip gameEndMusic;
+    // --- Música | efectos de son
+    // Audio Scource do GameObject Player
+    AudioSource playerAudio;
 
-    AudioSource audioSource;
-    // --------------------------------------------------
-
+    // --- Menú Canvas
     [SerializeField] private TextMeshProUGUI timeCounter;
     [SerializeField] private float blinkingStartSeconds = 5f;
     [SerializeField] private List<Image> heartImages;
@@ -44,7 +41,6 @@ public class GameManager : MonoBehaviour
 
     void Awake() {
         instance = this;
-        audioSource = GetComponent<AudioSource>();
     }
 
     void Start()
@@ -52,6 +48,9 @@ public class GameManager : MonoBehaviour
         heartCount = heartImages.Count;
 
         player = GameObject.Find("Player");
+        // AudioSource do Player (música da escea)
+        playerAudio = player.GetComponent<AudioSource>();
+
         initialPlayerPosition = player.transform.position;
         initialPlayerScale = player.transform.localScale;
         initialCameraPosition = Camera.main.gameObject.transform.position;
@@ -63,7 +62,6 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-
         if( ! stageOver && ! gameOver ) {
             // Resta o tempo transcurrido dende o último frame ao tempo restante
             timeRemaining -= Time.deltaTime;
@@ -82,12 +80,10 @@ public class GameManager : MonoBehaviour
                 if (timeRemaining <= blinkingStartSeconds) {
                     StartCoroutine(BlinkingTime());
                 }
-
-                // print($"GameManager. Tiempo restante: {timeCounter.text}");
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape)) {
+        if ( Input.GetKeyDown(KeyCode.Escape)){
             Pause();
             menuCanvas.SetActive(true);
             if (buttonPlay.activeSelf) {
@@ -130,14 +126,16 @@ public class GameManager : MonoBehaviour
 
     public void Pause() {
         Time.timeScale = 0f;
-        AudioManager.instance.StopMusic();
-        AudioManager.instance.PlayMusic( menuMusic );
+
+        // Pausa o audio clip do AudioSource de Player
+        playerAudio.Pause();
     }
 
     public void StartGame() {
         Time.timeScale = 1f;
-        AudioManager.instance.StopMusic();
-        AudioManager.instance.PlayMusic( gamePlayMusic );
+
+        // Continúa o audio clip do AudioSource de Player
+        playerAudio.Play();
     }
 
     public void Restart() {
@@ -153,6 +151,9 @@ public class GameManager : MonoBehaviour
 
         Time.timeScale = 1f;
         timeCounter.color = notBlinkingColor;
+
+        // Inicia o audio clip do AudioSource de Player
+        playerAudio.Play();
     }
 
     public void PlayerFlop( Vector3 flopPosition )
@@ -209,6 +210,10 @@ public class GameManager : MonoBehaviour
         positionDeadByFall = -4f;
         // Inicializar o cronómetro ca duración máxima do xogo
         timeRemaining = gameDuration;
+
+        // Para e inicializa o audio clip do AudioSource de Player
+        playerAudio.Stop();
+
         timeCounter.text = ConvertSecondsToMinutesAndSeconds(gameDuration);
     }
 
