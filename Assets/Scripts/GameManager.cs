@@ -178,12 +178,7 @@ public class GameManager : MonoBehaviour
 
             if( flopPosition.x > iPosition.x )
             {
-                continuePoint = continuePlayerPoints[i].position;
-            }
-
-            // O punto de caída nunca será menor que o de inicio
-            else {
-                continuePoint = continuePlayerPoints[i-1].position;
+                continuePoint = iPosition;
             }
         }
 

@@ -25137,6 +25137,7 @@ MonoBehaviour:
   - {fileID: 1821788846}
   - {fileID: 1390041705}
   - {fileID: 1770409669}
+  - {fileID: 1717035933}
   timeCounter: {fileID: 2076768459}
   blinkingStartSeconds: 5
   heartImages:
@@ -25498,7 +25499,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1717035932}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 59.27, y: -0.72, z: 0}
+  m_LocalPosition: {x: 58.22, y: -0.33, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
