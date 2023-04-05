@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour
     // --- Menú Canvas
     [SerializeField] private TextMeshProUGUI timeCounter;
     [SerializeField] private TextMeshProUGUI guideText;
-    [SerializeField] private float blinkingStartSeconds = 5f;
+    [SerializeField] private float blinkingStartSeconds;
     [SerializeField] private List<Image> heartImages;
     [SerializeField] private GameObject menuCanvas;
     [SerializeField] private GameObject buttonPlay;
@@ -64,6 +64,9 @@ public class GameManager : MonoBehaviour
         // Booleano que indica o fin da Corrutina RepeatingSound()
         repeatingSound = false;
 
+        // Aviso de proximidade ao gameDuration (tempo máximo)
+        blinkingStartSeconds = nBells * gongSound.length;
+
         player = GameObject.Find("Player");
         // AudioSource do Player (música da escea)
         playerAudio = player.GetComponent<AudioSource>();
@@ -104,15 +107,15 @@ public class GameManager : MonoBehaviour
                 // Mostrar el tiempo restante en GUI
                 timeCounter.text = ConvertSecondsToMinutesAndSeconds(timeRemaining);
 
-                if (timeRemaining <= blinkingStartSeconds) {
-                    StartCoroutine(BlinkingTime());
-                }
-
-                if( timeRemaining <= nBells * gongSound.length
-                    && !repeatingSound )
+                if (timeRemaining <= blinkingStartSeconds)
                 {
-                    StartCoroutine( RepeatingSound( gongSound, nBells ) );
-                    repeatingSound = true;
+                    StartCoroutine(BlinkingTime());
+
+                    if ( !repeatingSound )
+                    {
+                        StartCoroutine( RepeatingSound( gongSound, nBells ) );
+                        repeatingSound = true;
+                    }
                 }
             }
 
