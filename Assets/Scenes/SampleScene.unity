@@ -25420,7 +25420,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Fin do xogo
+  m_text: Game over
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d853d3614e8258c7381a46beb3547cc9, type: 2}
   m_sharedMaterial: {fileID: -7408683215235524148, guid: d853d3614e8258c7381a46beb3547cc9, type: 2}
