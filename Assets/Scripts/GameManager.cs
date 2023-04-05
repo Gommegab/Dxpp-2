@@ -13,6 +13,9 @@ public class GameManager : MonoBehaviour
     public List<Transform> continuePlayerPoints;
 
     // --- Música | efectos de son
+    AudioSource audioSource;
+    public AudioClip gongSound;
+
     // Audio Scource do GameObject Player
     AudioSource playerAudio;
 
@@ -27,11 +30,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject buttonRestart;
     [SerializeField] private GameObject levelCompletedText;
     [SerializeField] private GameObject gameOverText;
-    
+
     float timeRemaining;
     float positionDeadByFall;
-    bool gameOver, stageOver;
+    bool gameOver, stageOver, repeatingSound;
     int heartCount;
+    int nBells;
 
     public bool GameOver { get { return gameOver; } }
     public bool StageOver { get { return stageOver; } }
@@ -54,6 +58,12 @@ public class GameManager : MonoBehaviour
     {
         heartCount = heartImages.Count;
 
+        audioSource = GetComponent<AudioSource>();
+        // Número de campanadas de aviso de fin de tempo
+        nBells = 3;
+        // Booleano que indica o fin da Corrutina RepeatingSound()
+        repeatingSound = false;
+
         player = GameObject.Find("Player");
         // AudioSource do Player (música da escea)
         playerAudio = player.GetComponent<AudioSource>();
@@ -72,6 +82,9 @@ public class GameManager : MonoBehaviour
 
         Pause();    // Inicializamos o xogo en pausa para arrancalo dende o menú
         InitializeLevel();
+
+        // audioSource.clip = gongSound;
+        // print($"GameManager. Time gong {audioSource.clip.length}");
     }
 
     void Update()
@@ -94,7 +107,15 @@ public class GameManager : MonoBehaviour
                 if (timeRemaining <= blinkingStartSeconds) {
                     StartCoroutine(BlinkingTime());
                 }
+
+                if( timeRemaining <= nBells * gongSound.length
+                    && !repeatingSound )
+                {
+                    StartCoroutine( RepeatingSound( gongSound, nBells ) );
+                    repeatingSound = true;
+                }
             }
+
         }
 
         if (stageOver) {
@@ -253,6 +274,20 @@ public class GameManager : MonoBehaviour
         playerAudio.Stop();
 
         timeCounter.text = ConvertSecondsToMinutesAndSeconds(gameDuration);
+    }
+
+    // Corrutina para Activar as campanadas de fin de tempo
+    // Ou para calquera outro audio repetitivo
+    // @param: Audioclip clip. Clip de audio a repetir
+    // @param: Int n. Número de repeticións
+    private IEnumerator RepeatingSound ( AudioClip clip, int n )
+    {
+        for ( int i=0; i < n; i++ )
+        {
+            // reproducción simultánea con otros clips
+            audioSource.PlayOneShot( clip );
+            yield return new WaitForSeconds( clip.length );
+        }
     }
 
     private IEnumerator BlinkingTime() {
