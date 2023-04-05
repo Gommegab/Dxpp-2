@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.Rendering.Universal;
 
 public class GameManager : MonoBehaviour
 {
@@ -23,6 +24,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject buttonPlay;
     [SerializeField] private GameObject buttonContinue;
     [SerializeField] private GameObject buttonRestart;
+    [SerializeField] private GameObject levelCompleted;
 
     float timeRemaining;
     float positionDeadByFall;
@@ -30,10 +32,11 @@ public class GameManager : MonoBehaviour
     int heartCount;
 
     public bool GameOver { get { return gameOver; } }
+    public bool StageOver { get { return stageOver; } }
     public float PositionDeadByFall {get {return positionDeadByFall; } }
 
     private Color notBlinkingColor;
-
+    private Light2D finishLight;
     private GameObject player;
     private Vector3 initialPlayerPosition;
     private Vector3 initialPlayerScale;
@@ -52,6 +55,8 @@ public class GameManager : MonoBehaviour
         playerAudio = player.GetComponent<AudioSource>();
         // Volume de inicio
         playerAudio.volume = 1f;
+
+        finishLight = GameObject.Find("FinishLight").GetComponent<Light2D>();
 
         initialPlayerPosition = player.transform.position;
         initialPlayerScale = player.transform.localScale;
@@ -85,6 +90,11 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        if (stageOver) {
+            finishLight.intensity += Time.deltaTime * 0.6f;
+            finishLight.pointLightOuterRadius += Time.deltaTime;
+        }
+
         if ( Input.GetKeyDown(KeyCode.Escape)){
             Pause();
             menuCanvas.SetActive(true);
@@ -112,13 +122,14 @@ public class GameManager : MonoBehaviour
         timeCounter.text = "";
         heartImages.ForEach(h => h.color = Color.black);
 
-        StartCoroutine(GameOverRestartCoroutine());
+        StartCoroutine(GameOverRestartCoroutine(2f));
     }
 
     public void StageEnd()
     {
         Debug.Log("WIN");
         stageOver = true;
+        player.GetComponent<Player>().SetPlayerWon(true);
     }
 
     public void SetGameOver()
@@ -200,6 +211,11 @@ public class GameManager : MonoBehaviour
         Debug.Log($"GameManager.PlayerFlop. Quedan {heartCount} corazonziños");
     }
 
+    public void StageCompleted() {
+        levelCompleted.SetActive(true);
+        StartCoroutine(GameManager.instance.GameOverRestartCoroutine(1.8f));
+    }
+
     private void InitializeLevel() {
         gameOver = false;
         stageOver = false;
@@ -228,8 +244,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private IEnumerator GameOverRestartCoroutine() {
-        yield return new WaitForSeconds(2);
+    public IEnumerator GameOverRestartCoroutine(float seconds) {
+        yield return new WaitForSeconds(seconds);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

@@ -12,10 +12,13 @@ public class Player : MonoBehaviour
     Vector2 velocity;
     Rigidbody2D rb;
     Animator animator;
+    Material material;
 
     private bool isGrounded;
     private bool isBeingAttacked = false;
     private bool isFlickerEnabled = false;
+    private bool playerWon = false;
+    private float fade = 1f;
 
 
     void Start()
@@ -26,52 +29,68 @@ public class Player : MonoBehaviour
 
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        material = GetComponent<SpriteRenderer>().material;
 
         animator.SetBool( "dying", false );
     }
 
 
-    void Update()
-    {
-        if ( ! GameManager.instance.GameOver )
-        {
+    void Update() {
+        if ( ! GameManager.instance.GameOver ) {
+            
             isGrounded = IsGrounded();
 
-            // Values -1.0f, 0f, 1.0f
-            horizontal = Input.GetAxisRaw("Horizontal");
+            if (playerWon) {
 
-            // Se activa la animación de caer a velocidad Y hacia abajo
-            animator.SetBool( "falling", rb.velocity.y < 0 && !isGrounded );
-
-            if ( transform.position.y < GameManager.instance.PositionDeadByFall )
-            {
-                // Debug.Log( "Player: Vacuum fall!" );
-                GameManager.instance.PlayerFlop( transform.position );
-            }
-
-            if (isGrounded)
-            {
-
-                // Se activa la animación de correr cuando Player no esté parado
-                animator.SetBool( "running", horizontal != 0.0f );
-
-                // Player mira en la misma dirección que su mvto.
-                if ( horizontal < 0.0f ) {
-                    transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
+                speed = 0;
+                animator.SetBool("falling", false);
+                animator.SetBool("running", false);
+                fade -= Time.deltaTime * 0.4f;
+                
+                if (fade <= 0f) {
+                    fade = 0f;
+                    playerWon = false;
+                    GameManager.instance.StageCompleted();
                 }
-                else if ( horizontal > 0.0f ) {
-                    transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-                }
+                material.SetFloat("_Fade", fade);
+            
+            } else {
+                // Values -1.0f, 0f, 1.0f
+                horizontal = Input.GetAxisRaw("Horizontal");
 
-                if( Input.GetButtonDown("Jump") )
+                // Se activa la animación de caer a velocidad Y hacia abajo
+                animator.SetBool( "falling", rb.velocity.y < 0 && !isGrounded );
+
+                if ( transform.position.y < GameManager.instance.PositionDeadByFall )
                 {
-                    Jump();
+                    // Debug.Log( "Player: Vacuum fall!" );
+                    GameManager.instance.PlayerFlop( transform.position );
                 }
 
-                // Si no se pulsa la tecla de salto, se anula la animación
-                else if ( animator.GetBool("jumping") )
+                if (isGrounded)
                 {
-                    animator.SetBool( "jumping", false );
+
+                    // Se activa la animación de correr cuando Player no esté parado
+                    animator.SetBool( "running", horizontal != 0.0f );
+
+                    // Player mira en la misma dirección que su mvto.
+                    if ( horizontal < 0.0f ) {
+                        transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
+                    }
+                    else if ( horizontal > 0.0f ) {
+                        transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                    }
+
+                    if( Input.GetButtonDown("Jump") )
+                    {
+                        Jump();
+                    }
+
+                    // Si no se pulsa la tecla de salto, se anula la animación
+                    else if ( animator.GetBool("jumping") )
+                    {
+                        animator.SetBool( "jumping", false );
+                    }
                 }
             }
         }
@@ -147,6 +166,10 @@ public class Player : MonoBehaviour
         // print($"Player.IsGrounded() = {grounded}" );
 
         return grounded;
+    }
+
+    public void SetPlayerWon(bool won) {
+        playerWon = won;
     }
 
     private IEnumerator coIsBeingAttacked() {
