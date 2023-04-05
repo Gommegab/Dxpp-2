@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.Rendering.Universal;
 
 public class GameManager : MonoBehaviour
 {
@@ -17,27 +18,33 @@ public class GameManager : MonoBehaviour
 
     // --- Menú Canvas
     [SerializeField] private TextMeshProUGUI timeCounter;
+    [SerializeField] private TextMeshProUGUI guideText;
     [SerializeField] private float blinkingStartSeconds = 5f;
     [SerializeField] private List<Image> heartImages;
     [SerializeField] private GameObject menuCanvas;
     [SerializeField] private GameObject buttonPlay;
     [SerializeField] private GameObject buttonContinue;
     [SerializeField] private GameObject buttonRestart;
-
+    [SerializeField] private GameObject levelCompletedText;
+    [SerializeField] private GameObject gameOverText;
+    
     float timeRemaining;
     float positionDeadByFall;
     bool gameOver, stageOver;
     int heartCount;
 
     public bool GameOver { get { return gameOver; } }
+    public bool StageOver { get { return stageOver; } }
     public float PositionDeadByFall {get {return positionDeadByFall; } }
 
     private Color notBlinkingColor;
-
+    private Light2D finishLight;
+    private Light2D globalLight;
     private GameObject player;
     private Vector3 initialPlayerPosition;
     private Vector3 initialPlayerScale;
     private Vector3 initialCameraPosition;
+    private SpriteRenderer playerSr;
 
     void Awake() {
         instance = this;
@@ -52,6 +59,11 @@ public class GameManager : MonoBehaviour
         playerAudio = player.GetComponent<AudioSource>();
         // Volume de inicio
         playerAudio.volume = 1f;
+
+        playerSr = player.GetComponent<SpriteRenderer>();
+
+        finishLight = GameObject.Find("FinishLight").GetComponent<Light2D>();
+        globalLight = GameObject.Find("GlobalLight").GetComponent<Light2D>();
 
         initialPlayerPosition = player.transform.position;
         initialPlayerScale = player.transform.localScale;
@@ -85,6 +97,21 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        if (stageOver) {
+            finishLight.intensity += Time.deltaTime * 0.6f;
+            finishLight.pointLightOuterRadius += Time.deltaTime;
+        }
+
+        if (gameOver) {
+            playerSr.color = new Color(playerSr.color.r, playerSr.color.g, playerSr.color.b, playerSr.color.a - Time.deltaTime * 0.6f);
+            globalLight.intensity -= Time.deltaTime * 0.4f;
+            if (globalLight.intensity <= 0) {
+                globalLight.intensity = 0;
+                gameOverText.SetActive(true);
+                StartCoroutine(GameOverRestartCoroutine(2f));
+            }
+        }
+
         if ( Input.GetKeyDown(KeyCode.Escape)){
             Pause();
             menuCanvas.SetActive(true);
@@ -111,14 +138,13 @@ public class GameManager : MonoBehaviour
         gameOver = true;
         timeCounter.text = "";
         heartImages.ForEach(h => h.color = Color.black);
-
-        StartCoroutine(GameOverRestartCoroutine());
     }
 
     public void StageEnd()
     {
         Debug.Log("WIN");
         stageOver = true;
+        player.GetComponent<Player>().SetPlayerWon(true);
     }
 
     public void SetGameOver()
@@ -178,12 +204,7 @@ public class GameManager : MonoBehaviour
 
             if( flopPosition.x > iPosition.x )
             {
-                continuePoint = continuePlayerPoints[i].position;
-            }
-
-            // O punto de caída nunca será menor que o de inicio
-            else {
-                continuePoint = continuePlayerPoints[i-1].position;
+                continuePoint = iPosition;
             }
         }
 
@@ -193,16 +214,31 @@ public class GameManager : MonoBehaviour
 
     public void RemoveHearts()
     {
-        heartCount--;
-        if( heartCount == 0 )
-        {
-            GameEnd();
+        if (heartCount > 0) {
+            heartCount--;
+            if( heartCount == 0 )
+            {
+                GameEnd();
+            }
+
+            Image lastHeart = heartImages[heartCount];
+            lastHeart.color = Color.black;
+
+            Debug.Log($"GameManager.PlayerFlop. Quedan {heartCount} corazonziños");
         }
+    }
 
-        Image lastHeart = heartImages[heartCount];
-        lastHeart.color = Color.black;
+    public int GetHeartCount() {
+        return heartCount;
+    }
 
-        Debug.Log($"GameManager.PlayerFlop. Quedan {heartCount} corazonziños");
+    public void StageCompleted() {
+        levelCompletedText.SetActive(true);
+        StartCoroutine(GameManager.instance.GameOverRestartCoroutine(1.8f));
+    }
+
+    public void DeactivateGuide() {
+        StartCoroutine(coDeactivateGuide());
     }
 
     private void InitializeLevel() {
@@ -233,8 +269,22 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private IEnumerator GameOverRestartCoroutine() {
-        yield return new WaitForSeconds(2);
+    public IEnumerator GameOverRestartCoroutine(float seconds) {
+        yield return new WaitForSeconds(seconds);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    private IEnumerator coDeactivateGuide() {
+        float elapsedTime = 0f;
+        float waitTime = 3f;
+        float initialAlpha = guideText.color.a;
+        while (elapsedTime < waitTime) {
+            float newAlpha = Mathf.Lerp(initialAlpha, 0, (elapsedTime / waitTime));
+            guideText.color = new Color(guideText.color.r, guideText.color.g, guideText.color.b, newAlpha);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        guideText.gameObject.SetActive(false);
+        yield return null;
     }
 }
