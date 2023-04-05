@@ -34,6 +34,7 @@ public class CamFollow : MonoBehaviour
         Vector3 position = transform.position;
         position.x = go.transform.position.x;
         if (position.x > initialXposition && position.x < endXposition) {
+            GameManager.instance.DeactivateGuide();
             transform.position = position;
         }
     }

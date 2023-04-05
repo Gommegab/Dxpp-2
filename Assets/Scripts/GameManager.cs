@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
 
     // --- Menú Canvas
     [SerializeField] private TextMeshProUGUI timeCounter;
+    [SerializeField] private TextMeshProUGUI guideText;
     [SerializeField] private float blinkingStartSeconds = 5f;
     [SerializeField] private List<Image> heartImages;
     [SerializeField] private GameObject menuCanvas;
@@ -26,7 +27,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject buttonRestart;
     [SerializeField] private GameObject levelCompletedText;
     [SerializeField] private GameObject gameOverText;
-
+    
     float timeRemaining;
     float positionDeadByFall;
     bool gameOver, stageOver;
@@ -236,6 +237,10 @@ public class GameManager : MonoBehaviour
         StartCoroutine(GameManager.instance.GameOverRestartCoroutine(1.8f));
     }
 
+    public void DeactivateGuide() {
+        StartCoroutine(coDeactivateGuide());
+    }
+
     private void InitializeLevel() {
         gameOver = false;
         stageOver = false;
@@ -267,5 +272,19 @@ public class GameManager : MonoBehaviour
     public IEnumerator GameOverRestartCoroutine(float seconds) {
         yield return new WaitForSeconds(seconds);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    private IEnumerator coDeactivateGuide() {
+        float elapsedTime = 0f;
+        float waitTime = 3f;
+        float initialAlpha = guideText.color.a;
+        while (elapsedTime < waitTime) {
+            float newAlpha = Mathf.Lerp(initialAlpha, 0, (elapsedTime / waitTime));
+            guideText.color = new Color(guideText.color.r, guideText.color.g, guideText.color.b, newAlpha);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        guideText.gameObject.SetActive(false);
+        yield return null;
     }
 }
