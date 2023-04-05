@@ -24,7 +24,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject buttonPlay;
     [SerializeField] private GameObject buttonContinue;
     [SerializeField] private GameObject buttonRestart;
-    [SerializeField] private GameObject levelCompleted;
+    [SerializeField] private GameObject levelCompletedText;
+    [SerializeField] private GameObject gameOverText;
 
     float timeRemaining;
     float positionDeadByFall;
@@ -37,10 +38,12 @@ public class GameManager : MonoBehaviour
 
     private Color notBlinkingColor;
     private Light2D finishLight;
+    private Light2D globalLight;
     private GameObject player;
     private Vector3 initialPlayerPosition;
     private Vector3 initialPlayerScale;
     private Vector3 initialCameraPosition;
+    private SpriteRenderer playerSr;
 
     void Awake() {
         instance = this;
@@ -56,7 +59,10 @@ public class GameManager : MonoBehaviour
         // Volume de inicio
         playerAudio.volume = 1f;
 
+        playerSr = player.GetComponent<SpriteRenderer>();
+
         finishLight = GameObject.Find("FinishLight").GetComponent<Light2D>();
+        globalLight = GameObject.Find("GlobalLight").GetComponent<Light2D>();
 
         initialPlayerPosition = player.transform.position;
         initialPlayerScale = player.transform.localScale;
@@ -95,6 +101,16 @@ public class GameManager : MonoBehaviour
             finishLight.pointLightOuterRadius += Time.deltaTime;
         }
 
+        if (gameOver) {
+            playerSr.color = new Color(playerSr.color.r, playerSr.color.g, playerSr.color.b, playerSr.color.a - Time.deltaTime * 0.6f);
+            globalLight.intensity -= Time.deltaTime * 0.4f;
+            if (globalLight.intensity <= 0) {
+                globalLight.intensity = 0;
+                gameOverText.SetActive(true);
+                StartCoroutine(GameOverRestartCoroutine(2f));
+            }
+        }
+
         if ( Input.GetKeyDown(KeyCode.Escape)){
             Pause();
             menuCanvas.SetActive(true);
@@ -121,8 +137,6 @@ public class GameManager : MonoBehaviour
         gameOver = true;
         timeCounter.text = "";
         heartImages.ForEach(h => h.color = Color.black);
-
-        StartCoroutine(GameOverRestartCoroutine(2f));
     }
 
     public void StageEnd()
@@ -199,20 +213,26 @@ public class GameManager : MonoBehaviour
 
     public void RemoveHearts()
     {
-        heartCount--;
-        if( heartCount == 0 )
-        {
-            GameEnd();
+        if (heartCount > 0) {
+            heartCount--;
+            if( heartCount == 0 )
+            {
+                GameEnd();
+            }
+
+            Image lastHeart = heartImages[heartCount];
+            lastHeart.color = Color.black;
+
+            Debug.Log($"GameManager.PlayerFlop. Quedan {heartCount} corazonziños");
         }
+    }
 
-        Image lastHeart = heartImages[heartCount];
-        lastHeart.color = Color.black;
-
-        Debug.Log($"GameManager.PlayerFlop. Quedan {heartCount} corazonziños");
+    public int GetHeartCount() {
+        return heartCount;
     }
 
     public void StageCompleted() {
-        levelCompleted.SetActive(true);
+        levelCompletedText.SetActive(true);
         StartCoroutine(GameManager.instance.GameOverRestartCoroutine(1.8f));
     }
 

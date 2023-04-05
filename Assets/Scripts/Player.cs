@@ -113,16 +113,16 @@ public class Player : MonoBehaviour
     public void ReceiveAttack(int horizontal) {
         if (!isFlickerEnabled) {
             isBeingAttacked = true;
-            isFlickerEnabled = true;
-
             rb.AddForce( new Vector3(horizontal, 1) * 2.5f, ForceMode2D.Impulse);
-
             animator.SetTrigger("hit");
             animator.SetBool("jumping", true);
-
             StartCoroutine(coIsBeingAttacked());
-            StartCoroutine(coFlickOnAttack());
 
+            if (GameManager.instance.GetHeartCount() > 1) {
+                isFlickerEnabled = true;
+                StartCoroutine(coFlickOnAttack());
+            }
+            
             GameManager.instance.RemoveHearts();
 
         }
