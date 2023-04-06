@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour
     // --- Música | efectos de son
     AudioSource audioSource;
     public AudioClip gongSound;
+    public AudioClip vacuumFallSound;
 
     // Audio Scource do GameObject Player
     AudioSource playerAudio;
@@ -210,8 +211,9 @@ public class GameManager : MonoBehaviour
 
     public void PlayerFlop( Vector3 flopPosition )
     {
+        // Accions cando a Player cae nun foso
+        audioSource.PlayOneShot( vacuumFallSound );
         RemoveHearts();
-        // Accions cando o Player cae nun foso
         RepositionPlayer( flopPosition );
     }
 

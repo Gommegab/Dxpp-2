@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class DetectionCollider : MonoBehaviour {
-    
+
     [SerializeField] private GameObject goEnemy;
 
     private Enemy enemy;

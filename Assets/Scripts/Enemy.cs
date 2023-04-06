@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    
+
     [SerializeField] private float speed;
     [SerializeField] private Transform groundAdvanceController;
     [SerializeField] private Vector3 gcDimensionBox;
