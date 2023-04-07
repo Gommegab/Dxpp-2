@@ -26207,6 +26207,7 @@ MonoBehaviour:
   - {fileID: 1717035933}
   gongSound: {fileID: 8300000, guid: 1645a1e00d6f3accdb359bf64a9ed8cf, type: 3}
   vacuumFallSound: {fileID: 8300000, guid: 13bbba19cdd127134aa3f162befb8160, type: 3}
+  heartDeathSound: {fileID: 8300000, guid: 38838f1dabbcf0745bef95156816b745, type: 3}
   timeCounter: {fileID: 2076768459}
   guideText: {fileID: 464138749}
   blinkingStartSeconds: 5

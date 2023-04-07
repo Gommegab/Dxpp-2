@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     AudioSource audioSource;
     public AudioClip gongSound;
     public AudioClip vacuumFallSound;
+    public AudioClip heartDeathSound;
 
     // Audio Scource do GameObject Player
     AudioSource playerAudio;
@@ -99,6 +100,7 @@ public class GameManager : MonoBehaviour
 
             if ( timeRemaining <= 0f )
             {
+                repeatingSound = false;
                 // Cando o crono chegue a cero, remata o xogo
                 GameEnd();
             }
@@ -119,7 +121,6 @@ public class GameManager : MonoBehaviour
                     }
                 }
             }
-
         }
 
         if (stageOver) {
@@ -127,13 +128,29 @@ public class GameManager : MonoBehaviour
             finishLight.pointLightOuterRadius += Time.deltaTime;
         }
 
-        if (gameOver) {
+        if (gameOver)
+        {
             playerSr.color = new Color(playerSr.color.r, playerSr.color.g, playerSr.color.b, playerSr.color.a - Time.deltaTime * 0.6f);
+
             globalLight.intensity -= Time.deltaTime * 0.4f;
-            if (globalLight.intensity <= 0) {
+
+            // Cando remata o efecto fade
+            if ( globalLight.intensity <= 0 )
+            {
                 globalLight.intensity = 0;
+
+                // Aparece o texto de Game Over
                 gameOverText.SetActive(true);
-                StartCoroutine(GameOverRestartCoroutine(2f));
+
+                // Sonido de fondo mentres se mostra o texto de Game Over
+                if ( !repeatingSound )
+                {
+                    StartCoroutine( AudioClipFadeOut( heartDeathSound ) );
+                    repeatingSound = true;
+                }
+
+                // Corrutina de espera ao Menú ate que remate o efecto de son
+                StartCoroutine(GameOverRestartCoroutine( heartDeathSound.length));
             }
         }
 
@@ -281,11 +298,12 @@ public class GameManager : MonoBehaviour
         timeCounter.text = ConvertSecondsToMinutesAndSeconds(gameDuration);
     }
 
-    // Corrutina para Activar as campanadas de fin de tempo
-    // Ou para calquera outro audio repetitivo
-    // @param: Audioclip clip. Clip de audio a repetir
-    // @param: Int n. Número de repeticións
-    private IEnumerator RepeatingSound ( AudioClip clip, int n )
+    // Corrutina RepeatingSound()
+    // para reproducir un clip de audio completo n veces
+    // @param: Audioclip clip. Clip de audio a reproducir
+    // @param: Int n. Número de repeticións. Default 1
+
+    private IEnumerator RepeatingSound ( AudioClip clip, int n = 1 )
     {
         for ( int i=0; i < n; i++ )
         {
@@ -293,6 +311,49 @@ public class GameManager : MonoBehaviour
             audioSource.PlayOneShot( clip );
             yield return new WaitForSeconds( clip.length );
         }
+    }
+
+    // Corrutina AudioClipFadeOut()
+    // Corrutina para reproducir un clip de audio completo
+    // e que baixe paulatinamente o volume ate 0 ao rematar o clip
+    // @param: AudioClip clip. Clip de audio a reproducir co efecto FadeOut
+
+    private IEnumerator AudioClipFadeOut ( AudioClip clip )
+    {
+        // reproducción simultánea con otros clips
+        audioSource.PlayOneShot( clip );
+
+        // Audio decrescendo
+        StartCoroutine( AudioSourceFadeOut( audioSource, clip.length ) );
+
+        // Para reproducir todo o clip
+        yield return new WaitForSeconds( clip.length );
+    }
+
+    // Corrutina AudioSourceFadeOut()
+    // para baixar paulatinamente o volume de un AudioSource 'a' ate 0
+    // durante un tempo 't'
+    // @param: AudioSource a. O reproductor de audio
+    // @param: float t. Duración do efecto FadeOut ate o mute
+
+    private IEnumerator AudioSourceFadeOut( AudioSource a, float t )
+    {
+        // Gardar o volume inicial
+        float startVolume = a.volume;
+
+        // Baixando o volumen paulatinamente por frame
+        while ( a.volume > 0 )
+        {
+            a.volume -= startVolume * Time.deltaTime / t;
+
+            yield return null;
+        }
+
+        // Parar o audio cando se chege ao tempo 't'
+        a.Stop();
+
+        // Restablecer o volume inicial do AudioSource
+        a.volume = startVolume;
     }
 
     private IEnumerator BlinkingTime() {
