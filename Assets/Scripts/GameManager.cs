@@ -260,7 +260,7 @@ public class GameManager : MonoBehaviour
 
     public void StageCompleted() {
         levelCompletedText.SetActive(true);
-        StartCoroutine(GameManager.instance.GameOverRestartCoroutine(1.8f));
+        StartCoroutine( GameOverRestartCoroutine(1.8f) );
     }
 
     public void DeactivateGuide() {

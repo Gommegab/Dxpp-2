@@ -37,7 +37,7 @@ public class Player : MonoBehaviour
 
     void Update() {
         if ( ! GameManager.instance.GameOver ) {
-            
+
             isGrounded = IsGrounded();
 
             if (playerWon) {
@@ -46,14 +46,14 @@ public class Player : MonoBehaviour
                 animator.SetBool("falling", false);
                 animator.SetBool("running", false);
                 fade -= Time.deltaTime * 0.4f;
-                
+
                 if (fade <= 0f) {
                     fade = 0f;
                     playerWon = false;
                     GameManager.instance.StageCompleted();
                 }
                 material.SetFloat("_Fade", fade);
-            
+
             } else {
                 // Values -1.0f, 0f, 1.0f
                 horizontal = Input.GetAxisRaw("Horizontal");
@@ -122,7 +122,7 @@ public class Player : MonoBehaviour
                 isFlickerEnabled = true;
                 StartCoroutine(coFlickOnAttack());
             }
-            
+
             GameManager.instance.RemoveHearts();
 
         }
