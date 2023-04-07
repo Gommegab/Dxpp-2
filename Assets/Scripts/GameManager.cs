@@ -12,14 +12,10 @@ public class GameManager : MonoBehaviour
     public float gameDuration;
     public List<Transform> continuePlayerPoints;
 
-    // --- Música | efectos de son
-    AudioSource audioSource;
-    public AudioClip gongSound;
-    public AudioClip vacuumFallSound;
-    public AudioClip heartDeathSound;
-
-    // Audio Scource do GameObject Player
-    AudioSource playerAudio;
+    // --- Clips de audio
+    [SerializeField] private AudioClip audioGong;
+    [SerializeField] private AudioClip audioVacuumFall;
+    [SerializeField] private AudioClip audioHeartDeath;
 
     // --- Menú Canvas
     [SerializeField] private TextMeshProUGUI timeCounter;
@@ -37,7 +33,7 @@ public class GameManager : MonoBehaviour
     float positionDeadByFall;
     bool gameOver, stageOver, repeatingSound;
     int heartCount;
-    int nBells;
+    int nGongs;
 
     public bool GameOver { get { return gameOver; } }
     public bool StageOver { get { return stageOver; } }
@@ -60,21 +56,15 @@ public class GameManager : MonoBehaviour
     {
         heartCount = heartImages.Count;
 
-        audioSource = GetComponent<AudioSource>();
         // Número de campanadas de aviso de fin de tempo
-        nBells = 3;
+        nGongs = 3;
         // Booleano que indica o fin da Corrutina RepeatingSound()
         repeatingSound = false;
 
         // Aviso de proximidade ao gameDuration (tempo máximo)
-        blinkingStartSeconds = nBells * gongSound.length;
+        blinkingStartSeconds = nGongs * audioGong.length;
 
         player = GameObject.Find("Player");
-        // AudioSource do Player (música da escea)
-        playerAudio = player.GetComponent<AudioSource>();
-        // Volume de inicio
-        playerAudio.volume = 1f;
-
         playerSr = player.GetComponent<SpriteRenderer>();
 
         finishLight = GameObject.Find("FinishLight").GetComponent<Light2D>();
@@ -87,9 +77,6 @@ public class GameManager : MonoBehaviour
 
         Pause();    // Inicializamos o xogo en pausa para arrancalo dende o menú
         InitializeLevel();
-
-        // audioSource.clip = gongSound;
-        // print($"GameManager. Time gong {audioSource.clip.length}");
     }
 
     void Update()
@@ -116,7 +103,8 @@ public class GameManager : MonoBehaviour
 
                     if ( !repeatingSound )
                     {
-                        StartCoroutine( RepeatingSound( gongSound, nBells ) );
+                        StartCoroutine( AudioManager.instance.RepeatingClipCoroutine ( audioGong, nGongs) );
+
                         repeatingSound = true;
                     }
                 }
@@ -145,12 +133,13 @@ public class GameManager : MonoBehaviour
                 // Sonido de fondo mentres se mostra o texto de Game Over
                 if ( !repeatingSound )
                 {
-                    StartCoroutine( AudioClipFadeOut( heartDeathSound ) );
+                    StartCoroutine( AudioManager.instance.FadeOutClipCoroutine ( audioHeartDeath)
+                    );
                     repeatingSound = true;
                 }
 
                 // Corrutina de espera ao Menú ate que remate o efecto de son
-                StartCoroutine(GameOverRestartCoroutine( heartDeathSound.length));
+                StartCoroutine(GameOverRestartCoroutine( audioHeartDeath.length));
             }
         }
 
@@ -198,14 +187,14 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f;
 
         // Pausa o audio clip do AudioSource de Player
-        playerAudio.Pause();
+        AudioManager.instance.PlayerPause();
     }
 
     public void StartGame() {
         Time.timeScale = 1f;
 
         // Continúa o audio clip do AudioSource de Player
-        playerAudio.Play();
+        AudioManager.instance.PlayerPlay();
     }
 
     public void Restart() {
@@ -223,13 +212,13 @@ public class GameManager : MonoBehaviour
         timeCounter.color = notBlinkingColor;
 
         // Inicia o audio clip do AudioSource de Player
-        playerAudio.Play();
+        AudioManager.instance.PlayerPlay();
     }
 
     public void PlayerFlop( Vector3 flopPosition )
     {
         // Accions cando a Player cae nun foso
-        audioSource.PlayOneShot( vacuumFallSound );
+        AudioManager.instance.PlaySync( audioVacuumFall );
         RemoveHearts();
         RepositionPlayer( flopPosition );
     }
@@ -293,77 +282,24 @@ public class GameManager : MonoBehaviour
         timeRemaining = gameDuration;
 
         // Para e inicializa o audio clip do AudioSource de Player
-        playerAudio.Stop();
+        AudioManager.instance.PlayerStop();
 
         timeCounter.text = ConvertSecondsToMinutesAndSeconds(gameDuration);
     }
 
-    // Corrutina RepeatingSound()
-    // para reproducir un clip de audio completo n veces
-    // @param: Audioclip clip. Clip de audio a reproducir
-    // @param: Int n. Número de repeticións. Default 1
-
-    private IEnumerator RepeatingSound ( AudioClip clip, int n = 1 )
-    {
-        for ( int i=0; i < n; i++ )
-        {
-            // reproducción simultánea con otros clips
-            audioSource.PlayOneShot( clip );
-            yield return new WaitForSeconds( clip.length );
-        }
-    }
-
-    // Corrutina AudioClipFadeOut()
-    // Corrutina para reproducir un clip de audio completo
-    // e que baixe paulatinamente o volume ate 0 ao rematar o clip
-    // @param: AudioClip clip. Clip de audio a reproducir co efecto FadeOut
-
-    private IEnumerator AudioClipFadeOut ( AudioClip clip )
-    {
-        // reproducción simultánea con otros clips
-        audioSource.PlayOneShot( clip );
-
-        // Audio decrescendo
-        StartCoroutine( AudioSourceFadeOut( audioSource, clip.length ) );
-
-        // Para reproducir todo o clip
-        yield return new WaitForSeconds( clip.length );
-    }
-
-    // Corrutina AudioSourceFadeOut()
-    // para baixar paulatinamente o volume de un AudioSource 'a' ate 0
-    // durante un tempo 't'
-    // @param: AudioSource a. O reproductor de audio
-    // @param: float t. Duración do efecto FadeOut ate o mute
-
-    private IEnumerator AudioSourceFadeOut( AudioSource a, float t )
-    {
-        // Gardar o volume inicial
-        float startVolume = a.volume;
-
-        // Baixando o volumen paulatinamente por frame
-        while ( a.volume > 0 )
-        {
-            a.volume -= startVolume * Time.deltaTime / t;
-
-            yield return null;
-        }
-
-        // Parar o audio cando se chege ao tempo 't'
-        a.Stop();
-
-        // Restablecer o volume inicial do AudioSource
-        a.volume = startVolume;
-    }
-
     private IEnumerator BlinkingTime() {
-        while (timeRemaining > 0f && timeRemaining <= blinkingStartSeconds) {
+        while ( timeRemaining > 0f && timeRemaining <= blinkingStartSeconds )
+        {
             timeCounter.color = Color.Lerp(notBlinkingColor, Color.red, Mathf.PingPong(Time.time, 1f));
 
             // Reducir o volume do AudioSource do Player
+            AudioSource playerAudio = AudioManager.instance.GetPlayerAudio();
+
             if ( ! playerAudio.mute )
             {
                 playerAudio.volume = Mathf.Lerp( playerAudio.volume, 0f, Time.deltaTime / blinkingStartSeconds );
+
+                AudioManager.instance.SetPlayerAudio( playerAudio );
             }
 
             yield return new WaitForSeconds(0.5f);
