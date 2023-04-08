@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private AudioClip audioGong;
     [SerializeField] private AudioClip audioVacuumFall;
     [SerializeField] private AudioClip audioGameOver;
+    [SerializeField] private AudioClip audioLosingHeart;
 
     // --- Menú Canvas
     [SerializeField] private TextMeshProUGUI timeCounter;
@@ -246,7 +247,9 @@ public class GameManager : MonoBehaviour
 
     public void RemoveHearts()
     {
-        if (heartCount > 0) {
+        if ( heartCount > 0 )
+        {
+            AudioManager.instance.PlaySync( audioLosingHeart );
             heartCount--;
             if( heartCount == 0 )
             {
@@ -298,8 +301,6 @@ public class GameManager : MonoBehaviour
             if ( ! playerAudio.mute )
             {
                 playerAudio.volume = Mathf.Lerp( playerAudio.volume, 0f, Time.deltaTime / blinkingStartSeconds );
-
-                // AudioManager.instance.SetPlayerAudio( playerAudio );
             }
 
             yield return new WaitForSeconds(0.5f);

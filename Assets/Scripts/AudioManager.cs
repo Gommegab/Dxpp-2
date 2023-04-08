@@ -48,8 +48,6 @@ public class AudioManager : MonoBehaviour
 
     public AudioSource GetPlayerAudio () { return playerAudio; }
 
-    public void SetPlayerAudio( AudioSource audio ) { playerAudio = audio; }
-
 
     // Corrutina pública RepeatingClipCoroutine()
     // para reproducir un clip de audio completo n veces
