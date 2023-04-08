@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
     // --- Clips de audio
     [SerializeField] private AudioClip audioGong;
     [SerializeField] private AudioClip audioVacuumFall;
-    [SerializeField] private AudioClip audioHeartDeath;
+    [SerializeField] private AudioClip audioGameOver;
 
     // --- Menú Canvas
     [SerializeField] private TextMeshProUGUI timeCounter;
@@ -87,8 +87,8 @@ public class GameManager : MonoBehaviour
 
             if ( timeRemaining <= 0f )
             {
-                repeatingSound = false;
                 // Cando o crono chegue a cero, remata o xogo
+                repeatingSound = false;
                 GameEnd();
             }
 
@@ -133,13 +133,13 @@ public class GameManager : MonoBehaviour
                 // Sonido de fondo mentres se mostra o texto de Game Over
                 if ( !repeatingSound )
                 {
-                    StartCoroutine( AudioManager.instance.FadeOutClipCoroutine ( audioHeartDeath)
+                    StartCoroutine( AudioManager.instance.FadeOutClipCoroutine ( audioGameOver)
                     );
                     repeatingSound = true;
                 }
 
                 // Corrutina de espera ao Menú ate que remate o efecto de son
-                StartCoroutine(GameOverRestartCoroutine( audioHeartDeath.length));
+                StartCoroutine(GameOverRestartCoroutine( audioGameOver.length));
             }
         }
 

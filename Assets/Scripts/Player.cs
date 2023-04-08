@@ -7,6 +7,8 @@ public class Player : MonoBehaviour
     // Públicas en Dev para ajustar al tiempo
     public float speed, jumpForce;
 
+    [SerializeField] private AudioClip audioDying;
+
     float horizontal;
 
     Vector2 velocity;
@@ -110,24 +112,6 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void ReceiveAttack(int horizontal) {
-        if (!isFlickerEnabled) {
-            isBeingAttacked = true;
-            rb.AddForce( new Vector3(horizontal, 1) * 2.5f, ForceMode2D.Impulse);
-            animator.SetTrigger("hit");
-            animator.SetBool("jumping", true);
-            StartCoroutine(coIsBeingAttacked());
-
-            if (GameManager.instance.GetHeartCount() > 1) {
-                isFlickerEnabled = true;
-                StartCoroutine(coFlickOnAttack());
-            }
-
-            GameManager.instance.RemoveHearts();
-
-        }
-    }
-
     void Jump()
     {
         rb.AddForce( Vector2.up * jumpForce, ForceMode2D.Impulse );
@@ -168,9 +152,37 @@ public class Player : MonoBehaviour
         return grounded;
     }
 
+    // --- Métodos Públicos
+
+    // Evento de animación HuntressDeath
+    public void DyingSound()
+    {
+        AudioManager.instance.PlaySync( audioDying );
+    }
+
+    public void ReceiveAttack(int horizontal) {
+        if (!isFlickerEnabled) {
+            isBeingAttacked = true;
+            rb.AddForce( new Vector3(horizontal, 1) * 2.5f, ForceMode2D.Impulse);
+            animator.SetTrigger("hit");
+            animator.SetBool("jumping", true);
+            StartCoroutine(coIsBeingAttacked());
+
+            if (GameManager.instance.GetHeartCount() > 1) {
+                isFlickerEnabled = true;
+                StartCoroutine(coFlickOnAttack());
+            }
+
+            GameManager.instance.RemoveHearts();
+        }
+    }
+
     public void SetPlayerWon(bool won) {
         playerWon = won;
     }
+
+
+    // --- Corrutinas
 
     private IEnumerator coIsBeingAttacked() {
         while (isBeingAttacked) {

@@ -4096,6 +4096,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 2.5
   jumpForce: 8
+  audioDying: {fileID: 8300000, guid: 95e55d19cadd7ba4c8025a954d2961bd, type: 3}
 --- !u!82 &546262470
 AudioSource:
   m_ObjectHideFlags: 0
@@ -26206,7 +26207,7 @@ MonoBehaviour:
   - {fileID: 1717035933}
   audioGong: {fileID: 8300000, guid: 1645a1e00d6f3accdb359bf64a9ed8cf, type: 3}
   audioVacuumFall: {fileID: 8300000, guid: 13bbba19cdd127134aa3f162befb8160, type: 3}
-  audioHeartDeath: {fileID: 8300000, guid: 38838f1dabbcf0745bef95156816b745, type: 3}
+  audioGameOver: {fileID: 8300000, guid: 38838f1dabbcf0745bef95156816b745, type: 3}
   timeCounter: {fileID: 2076768459}
   guideText: {fileID: 464138749}
   blinkingStartSeconds: 5
