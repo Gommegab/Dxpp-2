@@ -299,7 +299,7 @@ public class GameManager : MonoBehaviour
             {
                 playerAudio.volume = Mathf.Lerp( playerAudio.volume, 0f, Time.deltaTime / blinkingStartSeconds );
 
-                AudioManager.instance.SetPlayerAudio( playerAudio );
+                // AudioManager.instance.SetPlayerAudio( playerAudio );
             }
 
             yield return new WaitForSeconds(0.5f);

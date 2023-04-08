@@ -11,15 +11,8 @@ public class AudioManager : MonoBehaviour
 
     public AudioSource PlayerAudio { get { return playerAudio; } }
 
-    void Awake()
-    {
-        if ( instance == null )
-        {
-            instance = this;
-            DontDestroyOnLoad( gameObject );
-        }
-
-        else { Destroy( gameObject ); }
+    void Awake() {
+        instance = this;
     }
 
     void Start()
