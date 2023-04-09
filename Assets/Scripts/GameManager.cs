@@ -77,6 +77,7 @@ public class GameManager : MonoBehaviour
         initialCameraPosition = Camera.main.gameObject.transform.position;
         notBlinkingColor = timeCounter.color;
 
+        AudioManager.instance.PlayerStop();
         Pause();    // Inicializamos o xogo en pausa para arrancalo dende o menú
         InitializeLevel();
     }
@@ -295,18 +296,23 @@ public class GameManager : MonoBehaviour
         timeCounter.text = ConvertSecondsToMinutesAndSeconds(gameDuration);
     }
 
+    void PlayerAudioMute( float interpolationLerp )
+    {
+        // Reducir o volume do AudioSource do Player
+        AudioSource playerAudio = AudioManager.instance.GetPlayerAudio();
+
+        if ( ! playerAudio.mute )
+        {
+            playerAudio.volume = Mathf.Lerp( playerAudio.volume, 0f, interpolationLerp );
+        }
+    }
+
     private IEnumerator BlinkingTime() {
         while ( timeRemaining > 0f && timeRemaining <= blinkingStartSeconds )
         {
             timeCounter.color = Color.Lerp(notBlinkingColor, Color.red, Mathf.PingPong(Time.time, 1f));
 
-            // Reducir o volume do AudioSource do Player
-            AudioSource playerAudio = AudioManager.instance.GetPlayerAudio();
-
-            if ( ! playerAudio.mute )
-            {
-                playerAudio.volume = Mathf.Lerp( playerAudio.volume, 0f, Time.deltaTime / blinkingStartSeconds );
-            }
+            PlayerAudioMute( Time.deltaTime / blinkingStartSeconds );
 
             yield return new WaitForSeconds(0.5f);
         }
