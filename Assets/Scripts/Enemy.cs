@@ -7,6 +7,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float speed;
     [SerializeField] private Transform groundAdvanceController;
     [SerializeField] private Vector3 gcDimensionBox;
+    [SerializeField] private AudioClip audioDying;
 
     private int horizontal;
     float startPositionY, dyingForce;
@@ -28,8 +29,8 @@ public class Enemy : MonoBehaviour
         dyingForce = 15f;
 
         rb = GetComponent<Rigidbody2D>();
-
         animator = GetComponent<Animator>();
+
         velocity = new Vector3(speed, 0, 0) * horizontal;
         startPositionY = transform.position.y;
     }
@@ -45,6 +46,7 @@ public class Enemy : MonoBehaviour
 
         if ( dying )
         {
+            // AudioManager.instance.PlaySync( audioDying );
             animator.SetBool( "dying", dying );
             rb.AddForce( Vector2.up * dyingForce );
         }
@@ -101,6 +103,11 @@ public class Enemy : MonoBehaviour
         Gizmos.DrawWireCube(groundAdvanceController.position, gcDimensionBox);
     }
 
+    // Evento de animación DeathDeath
+    public void DyingSound()
+    {
+        AudioManager.instance.PlaySync( audioDying );
+    }
 
     public void ReverseMovement()
     {

@@ -257,10 +257,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da0bb3ff209950fbf8a9df3c22a2eaac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackSound: {fileID: 0}
   speed: 2.5
   groundAdvanceController: {fileID: 2870840079937157949}
   gcDimensionBox: {x: 0.7, y: 0.25, z: 0}
+  audioDying: {fileID: 8300000, guid: 991d3db68c3a4eee184683a2061d5de9, type: 3}
 --- !u!50 &2870840080965496431
 Rigidbody2D:
   serializedVersion: 4
