@@ -26108,6 +26108,7 @@ MonoBehaviour:
   audioVacuumFall: {fileID: 8300000, guid: 13bbba19cdd127134aa3f162befb8160, type: 3}
   audioGameOver: {fileID: 8300000, guid: 38838f1dabbcf0745bef95156816b745, type: 3}
   audioLosingHeart: {fileID: 8300000, guid: aa5eea9195d40e4ffad582cfd8a2c087, type: 3}
+  audioPlayerWon: {fileID: 8300000, guid: 4bac06d73a543e6289b0efc75d86b336, type: 3}
   timeCounter: {fileID: 2076768459}
   guideText: {fileID: 464138749}
   blinkingStartSeconds: 5

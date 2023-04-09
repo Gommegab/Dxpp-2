@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private AudioClip audioVacuumFall;
     [SerializeField] private AudioClip audioGameOver;
     [SerializeField] private AudioClip audioLosingHeart;
+    [SerializeField] private AudioClip audioPlayerWon;
 
     // --- Menú Canvas
     [SerializeField] private TextMeshProUGUI timeCounter;
@@ -269,7 +270,11 @@ public class GameManager : MonoBehaviour
 
     public void StageCompleted() {
         levelCompletedText.SetActive(true);
-        StartCoroutine( GameOverRestartCoroutine(1.8f) );
+
+        AudioManager.instance.PlayerStop();
+        AudioManager.instance.PlaySync( audioPlayerWon );
+
+        StartCoroutine( GameOverRestartCoroutine( audioPlayerWon.length ) );
     }
 
     public void DeactivateGuide() {
@@ -307,7 +312,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public IEnumerator GameOverRestartCoroutine(float seconds) {
+    public IEnumerator GameOverRestartCoroutine( float seconds )
+    {
         yield return new WaitForSeconds(seconds);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
