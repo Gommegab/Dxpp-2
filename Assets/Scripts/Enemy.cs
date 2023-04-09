@@ -8,6 +8,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] private Transform groundAdvanceController;
     [SerializeField] private Vector3 gcDimensionBox;
     [SerializeField] private AudioClip audioDying;
+    [SerializeField] private AudioClip audioAttack;
 
     private int horizontal;
     float startPositionY, dyingForce;
@@ -108,6 +109,12 @@ public class Enemy : MonoBehaviour
     {
         AudioManager.instance.PlaySync( audioDying );
     }
+
+    public void AttackSound()
+    {
+        AudioManager.instance.PlaySync( audioAttack );
+    }
+
 
     public void ReverseMovement()
     {
