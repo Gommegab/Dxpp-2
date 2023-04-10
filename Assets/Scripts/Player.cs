@@ -7,6 +7,8 @@ public class Player : MonoBehaviour
     // Públicas en Dev para ajustar al tiempo
     public float speed, jumpForce;
 
+    [SerializeField] private AudioClip audioDying;
+
     float horizontal;
 
     Vector2 velocity;
@@ -37,7 +39,7 @@ public class Player : MonoBehaviour
 
     void Update() {
         if ( ! GameManager.instance.GameOver ) {
-            
+
             isGrounded = IsGrounded();
 
             if (playerWon) {
@@ -46,14 +48,14 @@ public class Player : MonoBehaviour
                 animator.SetBool("falling", false);
                 animator.SetBool("running", false);
                 fade -= Time.deltaTime * 0.4f;
-                
+
                 if (fade <= 0f) {
                     fade = 0f;
                     playerWon = false;
                     GameManager.instance.StageCompleted();
                 }
                 material.SetFloat("_Fade", fade);
-            
+
             } else {
                 // Values -1.0f, 0f, 1.0f
                 horizontal = Input.GetAxisRaw("Horizontal");
@@ -110,24 +112,6 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void ReceiveAttack(int horizontal) {
-        if (!isFlickerEnabled) {
-            isBeingAttacked = true;
-            rb.AddForce( new Vector3(horizontal, 1) * 2.5f, ForceMode2D.Impulse);
-            animator.SetTrigger("hit");
-            animator.SetBool("jumping", true);
-            StartCoroutine(coIsBeingAttacked());
-
-            if (GameManager.instance.GetHeartCount() > 1) {
-                isFlickerEnabled = true;
-                StartCoroutine(coFlickOnAttack());
-            }
-            
-            GameManager.instance.RemoveHearts();
-
-        }
-    }
-
     void Jump()
     {
         rb.AddForce( Vector2.up * jumpForce, ForceMode2D.Impulse );
@@ -168,9 +152,37 @@ public class Player : MonoBehaviour
         return grounded;
     }
 
+    // --- Métodos Públicos
+
+    // Evento de animación HuntressDeath
+    public void DyingSound()
+    {
+        AudioManager.instance.PlaySync( audioDying );
+    }
+
+    public void ReceiveAttack(int horizontal) {
+        if (!isFlickerEnabled) {
+            isBeingAttacked = true;
+            rb.AddForce( new Vector3(horizontal, 1) * 2.5f, ForceMode2D.Impulse);
+            animator.SetTrigger("hit");
+            animator.SetBool("jumping", true);
+            StartCoroutine(coIsBeingAttacked());
+
+            if (GameManager.instance.GetHeartCount() > 1) {
+                isFlickerEnabled = true;
+                StartCoroutine(coFlickOnAttack());
+            }
+
+            GameManager.instance.RemoveHearts();
+        }
+    }
+
     public void SetPlayerWon(bool won) {
         playerWon = won;
     }
+
+
+    // --- Corrutinas
 
     private IEnumerator coIsBeingAttacked() {
         while (isBeingAttacked) {

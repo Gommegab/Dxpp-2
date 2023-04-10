@@ -12,14 +12,17 @@ public class GameManager : MonoBehaviour
     public float gameDuration;
     public List<Transform> continuePlayerPoints;
 
-    // --- Música | efectos de son
-    // Audio Scource do GameObject Player
-    AudioSource playerAudio;
+    // --- Clips de audio
+    [SerializeField] private AudioClip audioGong;
+    [SerializeField] private AudioClip audioVacuumFall;
+    [SerializeField] private AudioClip audioGameOver;
+    [SerializeField] private AudioClip audioLosingHeart;
+    [SerializeField] private AudioClip audioPlayerWon;
 
     // --- Menú Canvas
     [SerializeField] private TextMeshProUGUI timeCounter;
     [SerializeField] private TextMeshProUGUI guideText;
-    [SerializeField] private float blinkingStartSeconds = 5f;
+    [SerializeField] private float blinkingStartSeconds;
     [SerializeField] private List<Image> heartImages;
     [SerializeField] private GameObject menuCanvas;
     [SerializeField] private GameObject buttonPlay;
@@ -27,11 +30,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject buttonRestart;
     [SerializeField] private GameObject levelCompletedText;
     [SerializeField] private GameObject gameOverText;
-    
+
     float timeRemaining;
     float positionDeadByFall;
-    bool gameOver, stageOver;
+    bool gameOver, stageOver, repeatingSound;
     int heartCount;
+    int nGongs;
 
     public bool GameOver { get { return gameOver; } }
     public bool StageOver { get { return stageOver; } }
@@ -54,12 +58,15 @@ public class GameManager : MonoBehaviour
     {
         heartCount = heartImages.Count;
 
-        player = GameObject.Find("Player");
-        // AudioSource do Player (música da escea)
-        playerAudio = player.GetComponent<AudioSource>();
-        // Volume de inicio
-        playerAudio.volume = 1f;
+        // Número de campanadas de aviso de fin de tempo
+        nGongs = 3;
+        // Booleano que indica o fin da Corrutina RepeatingSound()
+        repeatingSound = false;
 
+        // Aviso de proximidade ao gameDuration (tempo máximo)
+        blinkingStartSeconds = nGongs * audioGong.length;
+
+        player = GameObject.Find("Player");
         playerSr = player.GetComponent<SpriteRenderer>();
 
         finishLight = GameObject.Find("FinishLight").GetComponent<Light2D>();
@@ -70,6 +77,7 @@ public class GameManager : MonoBehaviour
         initialCameraPosition = Camera.main.gameObject.transform.position;
         notBlinkingColor = timeCounter.color;
 
+        AudioManager.instance.PlayerStop();
         Pause();    // Inicializamos o xogo en pausa para arrancalo dende o menú
         InitializeLevel();
     }
@@ -83,6 +91,7 @@ public class GameManager : MonoBehaviour
             if ( timeRemaining <= 0f )
             {
                 // Cando o crono chegue a cero, remata o xogo
+                repeatingSound = false;
                 GameEnd();
             }
 
@@ -91,8 +100,16 @@ public class GameManager : MonoBehaviour
                 // Mostrar el tiempo restante en GUI
                 timeCounter.text = ConvertSecondsToMinutesAndSeconds(timeRemaining);
 
-                if (timeRemaining <= blinkingStartSeconds) {
+                if (timeRemaining <= blinkingStartSeconds)
+                {
                     StartCoroutine(BlinkingTime());
+
+                    if ( !repeatingSound )
+                    {
+                        StartCoroutine( AudioManager.instance.RepeatingClipCoroutine ( audioGong, nGongs) );
+
+                        repeatingSound = true;
+                    }
                 }
             }
         }
@@ -102,13 +119,30 @@ public class GameManager : MonoBehaviour
             finishLight.pointLightOuterRadius += Time.deltaTime;
         }
 
-        if (gameOver) {
+        if (gameOver)
+        {
             playerSr.color = new Color(playerSr.color.r, playerSr.color.g, playerSr.color.b, playerSr.color.a - Time.deltaTime * 0.6f);
+
             globalLight.intensity -= Time.deltaTime * 0.4f;
-            if (globalLight.intensity <= 0) {
+
+            // Cando remata o efecto fade
+            if ( globalLight.intensity <= 0 )
+            {
                 globalLight.intensity = 0;
+
+                // Aparece o texto de Game Over
                 gameOverText.SetActive(true);
-                StartCoroutine(GameOverRestartCoroutine(2f));
+
+                // Sonido de fondo mentres se mostra o texto de Game Over
+                if ( !repeatingSound )
+                {
+                    StartCoroutine( AudioManager.instance.FadeOutClipCoroutine ( audioGameOver)
+                    );
+                    repeatingSound = true;
+                }
+
+                // Corrutina de espera ao Menú ate que remate o efecto de son
+                StartCoroutine(GameOverRestartCoroutine( audioGameOver.length));
             }
         }
 
@@ -156,14 +190,14 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f;
 
         // Pausa o audio clip do AudioSource de Player
-        playerAudio.Pause();
+        AudioManager.instance.PlayerPause();
     }
 
     public void StartGame() {
         Time.timeScale = 1f;
 
         // Continúa o audio clip do AudioSource de Player
-        playerAudio.Play();
+        AudioManager.instance.PlayerPlay();
     }
 
     public void Restart() {
@@ -181,13 +215,14 @@ public class GameManager : MonoBehaviour
         timeCounter.color = notBlinkingColor;
 
         // Inicia o audio clip do AudioSource de Player
-        playerAudio.Play();
+        AudioManager.instance.PlayerPlay();
     }
 
     public void PlayerFlop( Vector3 flopPosition )
     {
+        // Accions cando a Player cae nun foso
+        AudioManager.instance.PlaySync( audioVacuumFall );
         RemoveHearts();
-        // Accions cando o Player cae nun foso
         RepositionPlayer( flopPosition );
     }
 
@@ -214,7 +249,9 @@ public class GameManager : MonoBehaviour
 
     public void RemoveHearts()
     {
-        if (heartCount > 0) {
+        if ( heartCount > 0 )
+        {
+            AudioManager.instance.PlaySync( audioLosingHeart );
             heartCount--;
             if( heartCount == 0 )
             {
@@ -234,7 +271,11 @@ public class GameManager : MonoBehaviour
 
     public void StageCompleted() {
         levelCompletedText.SetActive(true);
-        StartCoroutine(GameManager.instance.GameOverRestartCoroutine(1.8f));
+
+        AudioManager.instance.PlayerStop();
+        AudioManager.instance.PlaySync( audioPlayerWon );
+
+        StartCoroutine( GameOverRestartCoroutine( audioPlayerWon.length ) );
     }
 
     public void DeactivateGuide() {
@@ -250,26 +291,35 @@ public class GameManager : MonoBehaviour
         timeRemaining = gameDuration;
 
         // Para e inicializa o audio clip do AudioSource de Player
-        playerAudio.Stop();
+        AudioManager.instance.PlayerStop();
 
         timeCounter.text = ConvertSecondsToMinutesAndSeconds(gameDuration);
     }
 
+    void PlayerAudioMute( float interpolationLerp )
+    {
+        // Reducir o volume do AudioSource do Player
+        AudioSource playerAudio = AudioManager.instance.GetPlayerAudio();
+
+        if ( ! playerAudio.mute )
+        {
+            playerAudio.volume = Mathf.Lerp( playerAudio.volume, 0f, interpolationLerp );
+        }
+    }
+
     private IEnumerator BlinkingTime() {
-        while (timeRemaining > 0f && timeRemaining <= blinkingStartSeconds) {
+        while ( timeRemaining > 0f && timeRemaining <= blinkingStartSeconds )
+        {
             timeCounter.color = Color.Lerp(notBlinkingColor, Color.red, Mathf.PingPong(Time.time, 1f));
 
-            // Reducir o volume do AudioSource do Player
-            if ( ! playerAudio.mute )
-            {
-                playerAudio.volume = Mathf.Lerp( playerAudio.volume, 0f, Time.deltaTime / blinkingStartSeconds );
-            }
+            PlayerAudioMute( Time.deltaTime / blinkingStartSeconds );
 
             yield return new WaitForSeconds(0.5f);
         }
     }
 
-    public IEnumerator GameOverRestartCoroutine(float seconds) {
+    public IEnumerator GameOverRestartCoroutine( float seconds )
+    {
         yield return new WaitForSeconds(seconds);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }

@@ -260,6 +260,8 @@ MonoBehaviour:
   speed: 2.5
   groundAdvanceController: {fileID: 2870840079937157949}
   gcDimensionBox: {x: 0.7, y: 0.25, z: 0}
+  audioDying: {fileID: 8300000, guid: 991d3db68c3a4eee184683a2061d5de9, type: 3}
+  audioAttack: {fileID: 8300000, guid: d445ff73b670f6e3a9ce05eddf4dbb9a, type: 3}
 --- !u!50 &2870840080965496431
 Rigidbody2D:
   serializedVersion: 4
